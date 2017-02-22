@@ -28,7 +28,7 @@ def main():
 
     conn.execute("INSERT INTO HOME_SCANNER_DATABASE (MQ2_1,MQ2_2,LIGHT_1,LIGHT_2,\
         TEMPERATURE,HUMIDITY,MOTION,DISTANCE,TIME_COLLECTED) \
-        VALUES (300, 320, 120, 332, 32, 123, 1, 13, '2016-03-22')")
+        VALUES (432, 120, 320, 32, 132, 233, 0, 13, '2017-02-22')")
 
     conn.commit()
 
