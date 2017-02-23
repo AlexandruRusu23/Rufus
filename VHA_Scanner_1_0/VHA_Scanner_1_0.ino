@@ -17,8 +17,6 @@
 #define RGB_LED_B_PIN 9
 #define MOTION_PIN 6
 
-#define MAX_DISTANCE 23200
-
 struct ScannerData
 {
   int light_value[2];
@@ -31,17 +29,24 @@ struct ScannerData
 
 ScannerData scannerData;
 
-  float humi = 0;
-  float prehum = 0;
-  float humconst = 0;
-  float truehum = 0;
-  float pretruehum = 0; 
-  long pretruehumconst = 0; 
-  long valb = 0;
+float humi;
+float prehum;
+float humconst;
+float truehum;
+float pretruehum; 
+long pretruehumconst; 
+long valb;
 
-unsigned long time_HC_1;
-unsigned long time_HC_2;
-unsigned long pulse_width;
+unsigned long scanner_timer;
+unsigned long controller_timer;
+
+// Command Controller vars
+unsigned long serialData;
+int inByte;
+int digitalState;
+int pinNumber;
+int analogRate;
+int sensorVal;
 
 void setup() {
   delay(100);
@@ -73,42 +78,52 @@ void setup() {
 }
 
 void loop() {
+
+  if(millis() - controller_timer > 100)
+  {
+    CommandManager();
+    controller_timer = millis();
+  }
+
+  if(millis() - scanner_timer > 1000)
+  {
+  //// Light sensor
+    scannerData.light_value[0] = analogRead(LIGHT_1_PIN);
+    scannerData.light_value[1] = analogRead(LIGHT_2_PIN);
   
-//// Light sensor
-  scannerData.light_value[0] = analogRead(LIGHT_1_PIN);
-  scannerData.light_value[1] = analogRead(LIGHT_2_PIN);
-
-//// Temperature sensor
-  scannerData.temperature_value = ReadTemperature(10, TEMPERATURE_PIN);
-
-//// Humidity sensor
-  valb = analogRead(HUMIDITY_PIN); // humidity calculation
-  prehum = (valb/5);
-  humconst = (0.16/0.0062);
-  humi = prehum - humconst;
-  pretruehumconst = 0.00216*scannerData.temperature_value;
-  pretruehum = 1.0546-pretruehumconst;
-  scannerData.humidity_value = humi/pretruehum;
-
-//// Distance sensor
-  long duration;
-  digitalWrite(TRIG_PIN, LOW);
-  delayMicroseconds(2);
-  digitalWrite(TRIG_PIN, HIGH);
-  delayMicroseconds(10); // Added this line
-  digitalWrite(TRIG_PIN, LOW);
-  duration = pulseIn(ECHO_PIN, HIGH);
-  scannerData.distance_value = (duration/2) / 29.1;
+  //// Temperature sensor
+    scannerData.temperature_value = ReadTemperature(10, TEMPERATURE_PIN);
   
-//// Gas sensor
-  scannerData.mq2_value[0] = analogRead(MQ2_1_PIN);
-  scannerData.mq2_value[1] = analogRead(MQ2_2_PIN);
+  //// Humidity sensor
+    valb = analogRead(HUMIDITY_PIN); // humidity calculation
+    prehum = (valb/5);
+    humconst = (0.16/0.0062);
+    humi = prehum - humconst;
+    pretruehumconst = 0.00216*scannerData.temperature_value;
+    pretruehum = 1.0546-pretruehumconst;
+    scannerData.humidity_value = humi/pretruehum;
+  
+  //// Distance sensor
+    long duration;
+    digitalWrite(TRIG_PIN, LOW);
+    delayMicroseconds(2);
+    digitalWrite(TRIG_PIN, HIGH);
+    delayMicroseconds(10); // Added this line
+    digitalWrite(TRIG_PIN, LOW);
+    duration = pulseIn(ECHO_PIN, HIGH);
+    scannerData.distance_value = (duration/2) / 29.1;
+    
+  //// Gas sensor
+    scannerData.mq2_value[0] = analogRead(MQ2_1_PIN);
+    scannerData.mq2_value[1] = analogRead(MQ2_2_PIN);
+  
+  //// Motion sensor
+    scannerData.motion_value = digitalRead(MOTION_PIN);
+  
+    PrintScannerData();
 
-//// Motion sensor
-  scannerData.motion_value = digitalRead(MOTION_PIN);
-
-  PrintScannerData();
-  delay(1000);
+    scanner_timer = millis();
+  }
 }
 
 float ReadTemperature(int count, int pin)
@@ -170,3 +185,123 @@ void PrintScannerData()
   Serial.println("end_scanner_data");
   Serial.println("");
 }
+
+long getSerial()
+{
+  serialData = 0;
+  if (Serial.available() > 0) {
+    while(inByte != '/')
+    {
+      inByte = Serial.read();
+      if(inByte > 0 && inByte != '/')
+      {
+        serialData = serialData * 10 + inByte - '0';
+      }
+    }
+  
+    inByte = 0;
+  }
+  return serialData;
+}
+
+void CommandManager()
+{
+  getSerial();
+  switch(serialData)
+  {
+    case 1:
+    {
+      // Analog / Digital write
+      getSerial();
+      switch(serialData)
+      {
+        case 1:
+        {
+          AnalogWrite();
+          break;
+        }
+        case 2:
+        {
+          DigitalWrite();
+          break;
+        }
+      }
+      break;
+    }
+    case 2:
+    {
+      // Analog / Digital read
+      getSerial();
+      switch (serialData)
+      {
+      case 1:
+        {
+          AnalogRead();
+          break;
+        } 
+      case 2:
+        {
+          DigitalRead();
+          break;
+        }
+      }
+      break;
+    }
+  }
+}
+
+void AnalogRead()
+{
+  getSerial();
+  pinNumber = serialData;
+  pinMode(pinNumber, INPUT);
+  sensorVal = analogRead(pinNumber);
+  Serial.println("analog_read");
+  Serial.println(sensorVal);
+  Serial.println("end_analog_read");
+  sensorVal = 0;
+  pinNumber = 0;
+}
+
+void AnalogWrite()
+{
+  getSerial();
+  pinNumber = serialData;
+  getSerial();
+  analogRate = serialData;
+  pinMode(pinNumber, OUTPUT);
+  analogWrite(pinNumber, analogRate);
+  pinNumber = 0;
+}
+
+void DigitalRead()
+{
+  getSerial();
+  pinNumber = serialData;
+  pinMode(pinNumber, INPUT);
+  sensorVal = digitalRead(pinNumber);
+  Serial.println("digital_read");
+  Serial.println(sensorVal);
+  Serial.println("end_digital_read");
+  sensorVal = 0;
+  pinNumber = 0;
+}
+
+void DigitalWrite()
+{      
+  getSerial();
+  pinNumber = serialData;
+  getSerial();
+  digitalState = serialData;
+  pinMode(pinNumber, OUTPUT);
+  if (digitalState == 0)
+  {
+    digitalWrite(pinNumber, LOW);
+  }
+  if (digitalState >= 1)
+  {
+    digitalWrite(pinNumber, HIGH);
+  }
+  pinNumber = 0;
+}
+
