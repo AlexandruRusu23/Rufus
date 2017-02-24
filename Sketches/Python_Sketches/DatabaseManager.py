@@ -1,12 +1,23 @@
 import sqlite3
-"""
-Database manipulation
-"""
+
+class DatabaseManager:
+    def __init__(self):
+        print 'init'
+
+    def Create(self):
+        print 'create'
+
+    def Connect(self):
+        print 'connect'
+
+    def Disconnect(self):
+        print 'disconnect'
+
+    def UpdateDatabase(self):
+        print 'updateDB'
 
 def main():
-    """
-    database test function
-    """
+
     conn = sqlite3.connect('test.db')
 
     print "Opened database successfully"
