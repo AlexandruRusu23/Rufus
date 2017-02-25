@@ -1,5 +1,6 @@
 import serial
 import time
+import datetime
 import re
 
 class SerialManager:
@@ -26,7 +27,8 @@ class SerialManager:
                     if(line):
                         self.StoreInDictionary(line)
                     line = self._serialFile.readline()
-            print self._dictScannerData
+            self._dictScannerData['time_collected'] = datetime.datetime.now()
+            #print self._dictScannerData
 
     def Writer(self):
         print('Serial writer function')
@@ -69,3 +71,12 @@ class SerialManager:
             if ('motion' in lineToStoreTokenized[i]):
                 self._dictScannerData['motion'] = lineToStoreTokenized[i+1]
                 continue
+
+"""
+aux = SerialManager('/dev/ttyACM0', 9600)
+aux.Start()
+time.sleep(5)
+print ("I'm connected to: " + aux._serialFile.name)
+#aux.Writer()
+aux.Reader()
+"""

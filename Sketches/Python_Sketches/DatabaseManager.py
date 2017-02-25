@@ -1,49 +1,66 @@
 import sqlite3
+import time
+import datetime
 
 class DatabaseManager:
-    def __init__(self):
-        print 'init'
-
-    def Create(self):
-        print 'create'
+    def __init__(self, databaseName):
+        self._databaseName = databaseName
 
     def Connect(self):
-        print 'connect'
+        try:
+            self._connection = sqlite3.connect(self._databaseName)
+        except:
+            return 0
+        self.CreateTable()
 
     def Disconnect(self):
-        print 'disconnect'
+        self._connection.close()
 
-    def UpdateDatabase(self):
-        print 'updateDB'
+    def CreateTable(self):
+        self.Connect()
+        try:
+            self._connection.execute('''CREATE TABLE IF NOT EXISTS HOME_SCANNER_DATABASE
+                (ID              INTEGER     PRIMARY KEY AUTOINCREMENT        NOT NULL,
+                MQ2_1            INTEGER     NOT NULL,
+                MQ2_2            INTEGER     NOT NULL,
+                LIGHT_1          INTEGER     NOT NULL,
+                LIGHT_2          INTEGER     NOT NULL,
+                TEMPERATURE      REAL        NOT NULL,
+                HUMIDITY         INTEGER     NOT NULL,
+                MOTION           INTEGER     NOT NULL,
+                DISTANCE         REAL        NOT NULL,
+                TIME_COLLECTED   DATE        NOT NULL);''')
+        except:
+            return 0
 
-def main():
+    def InsertScannerData(self, dictScannerData):
+        self.Connect()
+        try:
+            self._connection.execute("INSERT INTO HOME_SCANNER_DATABASE (MQ2_1,MQ2_2,LIGHT_1,LIGHT_2, \
+                TEMPERATURE,HUMIDITY,MOTION,DISTANCE,TIME_COLLECTED) VALUES \
+                (:mq2_1, :mq2_2, :light_1, :light_2, :temperature, :humidity, :motion, \
+                :distance, :time_collected);", dictScannerData)
 
-    conn = sqlite3.connect('test.db')
+            self._connection.commit()
+        except:
+            return 0
 
-    print "Opened database successfully"
+    #select strftime('%Y - %m - %d', time_collected) from home_scanner_database;
 
-    conn.execute('''CREATE TABLE IF NOT EXISTS HOME_SCANNER_DATABASE
-        (ID              INTEGER     PRIMARY KEY AUTOINCREMENT        NOT NULL,
-        MQ2_1            INTEGER     NOT NULL,
-        MQ2_2            INTEGER     NOT NULL,
-        LIGHT_1          INTEGER     NOT NULL,
-        LIGHT_2          INTEGER     NOT NULL,
-        TEMPERATURE      REAL        NOT NULL,
-        HUMIDITY         INTEGER     NOT NULL,
-        MOTION           INTEGER     NOT NULL,
-        DISTANCE         REAL        NOT NULL,
-        TIME_COLLECTED   DATE        NOT NULL
-        );''')
-
-    print "Table created successfully"
-
-    conn.execute("INSERT INTO HOME_SCANNER_DATABASE (MQ2_1,MQ2_2,LIGHT_1,LIGHT_2,\
-        TEMPERATURE,HUMIDITY,MOTION,DISTANCE,TIME_COLLECTED) \
-        VALUES (432, 120, 320, 32, 132, 233, 0, 13, '2017-02-22')")
-
-    conn.commit()
-
-    conn.close()
-
-if __name__ == '__main__':
-    main()
+    def GetScannerData(self):
+        self.Connect()
+        cursor = self._connection.execute("SELECT MQ2_1, MQ2_2, LIGHT_1, LIGHT_2, TEMPERATURE, HUMIDITY, MOTION, DISTANCE, TIME_COLLECTED FROM HOME_SCANNER_DATABASE")
+        auxDict = {}
+        matDictScannerData = []
+        for row in cursor:
+            auxDict['mq2_1'] = row[0]
+            auxDict['mq2_2'] = row[1]
+            auxDict['light_1'] = row[2]
+            auxDict['light_1'] = row[3]
+            auxDict['temperature'] = row[4]
+            auxDict['humidity'] = row[5]
+            auxDict['motion'] = row[6]
+            auxDict['distance'] = row[7]
+            auxDict['time_collected'] = row[8]
+            matDictScannerData.append(auxDict)
+        return matDictScannerData
