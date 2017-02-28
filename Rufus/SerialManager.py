@@ -17,12 +17,13 @@ class SerialManager(threading.Thread):
         self.__serialFile = serial.Serial(serialName, serialRatio)
         self.__listScannerCommands = []
         self.__dictScannerData = {}
-        self._isRunning = True
+        self._isRunning = False
 
     def __del__(self):
         self.__serialFile.close();
 
     def run(self):
+        self._isRunning = True
         while(self._isRunning):
             self.__Reader()
 

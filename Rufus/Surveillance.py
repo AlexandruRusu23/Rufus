@@ -1,36 +1,52 @@
+import threading
 import numpy as np
 import time
 import datetime
 import cv2
 
-cap = cv2.VideoCapture(0)
+class Surveillance(threading.Thread):
 
-# Define the codec and create VideoWriter object
-numeOutput = 'VIDEO' + datetime.datetime.now().strftime('%Y%m%d_%H%M%S') + '.avi'
-fourcc = cv2.VideoWriter_fourcc(*'XVID')
-out = cv2.VideoWriter(numeOutput,fourcc, 30.0, (640,480))
+    def __init__(self, idCamera, frameWidth, frameHeight, fpsCamera):
+        threading.Thread.__init__(self)
+        self._isRunning = False
+        self._camera = cv2.VideoCapture(idCamera)
+        self._fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        self._frameWidth = frameWidth
+        self._frameHeight = frameHeight
+        self._fpsCamera = fpsCamera
+        self._fileOut = cv2.VideoWriter(self.__GetFileName(), self._fourcc, self._fpsCamera, (self._frameWidth, self._frameHeight))
+        self._current_time = time.time()
 
-start_time = time.time()
+    def __del__(self):
+        'Terminated'
 
-while(cap.isOpened()):
-    ret, frame = cap.read()
-    if ret==True:
+    def run(self):
+        self._isRunning = True
+        self._current_time = time.time()
+        self.__Record()
+        self._camera.release()
+        self._fileOut.release()
+        cv2.destroyAllWindows()
 
-        if ((time.time() - start_time) > 30):
-            numeOutput = 'VIDEO' + datetime.datetime.now().strftime('%Y%m%d_%H%M%S') + '.avi'
-            out.release()
-            out = cv2.VideoWriter(numeOutput,fourcc, 30.0, (640,480))
-            start_time = time.time()
+    def Stop(self):
+        self._isRunning = False
 
-        out.write(frame)
+    def __GetFileName(self):
+        return 'VIDEO' + datetime.datetime.now().strftime('%Y%m%d_%H%M%S') + '.avi'
 
-        cv2.imshow(numeOutput,frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-    else:
-        break
+    def __Record(self):
+        while(self._camera.isOpened()):
+            ret, frame = self._camera.read()
+            if ret == True:
+                if ((time.time() - self._current_time) > 10):
+                    self._fileOut.release()
+                    self._fileOut = cv2.VideoWriter(self.__GetFileName(), self._fourcc, self._fpsCamera, (self._frameWidth, self._frameHeight))
+                    self._current_time = time.time()
 
-# Release everything if job is finished
-cap.release()
-out.release()
-cv2.destroyAllWindows()
+                self._fileOut.write(frame)
+
+                if (self._isRunning == False):
+                    break
+            else:
+                self.Stop()
+                break
