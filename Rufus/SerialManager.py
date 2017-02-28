@@ -13,19 +13,26 @@ class SerialManager(threading.Thread):
         Serial Manager Constructor Args: serial name, serial ratio ('/dev/ttyACM0', 9600)
         """
         threading.Thread.__init__(self)
-        self._threadLock = threading.Lock()
+        self._runningLock = threading.Lock()
+        self._scannerDictLock = threading.Lock()
         self.__serialFile = serial.Serial(serialName, serialRatio)
         self.__listScannerCommands = []
         self.__dictScannerData = {}
         self._isRunning = False
 
-    def __del__(self):
-        self.__serialFile.close();
-
     def run(self):
+        self._runningLock.acquire()
         self._isRunning = True
-        while(self._isRunning):
+        self._runningLock.release()
+        while(True):
             self.__Reader()
+
+            self._runningLock.acquire()
+            if(self._isRunning == False):
+                self._runningLock.release()
+                break
+            self._runningLock.release()
+        self.__serialFile.close();
 
     def __Reader(self):
         """
@@ -39,7 +46,9 @@ class SerialManager(threading.Thread):
                     if(line):
                         self.__StoreInDictionary(line)
                     line = self.__serialFile.readline()
+            self._scannerDictLock.acquire()
             self.__dictScannerData['time_collected'] = datetime.datetime.now()
+            self._scannerDictLock.release()
 
     def __StoreInDictionary(self, lineToStore):
         """
@@ -48,24 +57,36 @@ class SerialManager(threading.Thread):
         lineToStoreTokenized = re.findall(r"[\w.]+", lineToStore)
         for i in range(len(lineToStoreTokenized)):
             if ('gas' in lineToStoreTokenized[i]):
+                self._scannerDictLock.acquire()
                 self.__dictScannerData['mq2_1'] = lineToStoreTokenized[i+1]
                 self.__dictScannerData['mq2_2'] = lineToStoreTokenized[i+2]
+                self._scannerDictLock.release()
                 continue
             if ('temperature' in lineToStoreTokenized[i]):
+                self._scannerDictLock.acquire()
                 self.__dictScannerData['temperature'] = lineToStoreTokenized[i+1]
+                self._scannerDictLock.release()
                 continue
             if ('light' in lineToStoreTokenized[i]):
+                self._scannerDictLock.acquire()
                 self.__dictScannerData['light_1'] = lineToStoreTokenized[i+1]
                 self.__dictScannerData['light_2'] = lineToStoreTokenized[i+2]
+                self._scannerDictLock.release()
                 continue
             if ('humidity' in lineToStoreTokenized[i]):
+                self._scannerDictLock.acquire()
                 self.__dictScannerData['humidity'] = lineToStoreTokenized[i+1]
+                self._scannerDictLock.release()
                 continue
             if ('distance' in lineToStoreTokenized[i]):
+                self._scannerDictLock.acquire()
                 self.__dictScannerData['distance'] = lineToStoreTokenized[i+1]
+                self._scannerDictLock.release()
                 continue
             if ('motion' in lineToStoreTokenized[i]):
+                self._scannerDictLock.acquire()
                 self.__dictScannerData['motion'] = lineToStoreTokenized[i+1]
+                self._scannerDictLock.release()
                 continue
 
     def __Writer(self):
@@ -81,13 +102,18 @@ class SerialManager(threading.Thread):
         """
         Stop the Serial Manager
         """
+        self._runningLock.acquire()
         self._isRunning = False
+        self._runningLock.release()
 
     def GetScannerData(self):
         """
         Get the data from Serial from a dictionary which is returned by the function
         """
-        return self.__dictScannerData
+        self._scannerDictLock.acquire()
+        output = self.__dictScannerData
+        self._scannerDictLock.release()
+        return output
 
     def SetScannerCommands(self, listScannerCommands):
         """

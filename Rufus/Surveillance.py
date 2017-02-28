@@ -5,20 +5,21 @@ import datetime
 import cv2
 
 class Surveillance(threading.Thread):
+    #static field to increment the id of the camera to prevent the cases there's more than one camera
+    idCamera = 0
 
-    def __init__(self, idCamera, frameWidth, frameHeight, fpsCamera):
+    def __init__(self, frameWidth, frameHeight, fpsCamera):
         threading.Thread.__init__(self)
+        self._runningLock = threading.Lock()
         self._isRunning = False
-        self._camera = cv2.VideoCapture(idCamera)
+        self._camera = cv2.VideoCapture(Surveillance.idCamera)
+        Surveillance.idCamera = Surveillance.idCamera + 1
         self._fourcc = cv2.VideoWriter_fourcc(*'XVID')
         self._frameWidth = frameWidth
         self._frameHeight = frameHeight
         self._fpsCamera = fpsCamera
         self._fileOut = cv2.VideoWriter(self.__GetFileName(), self._fourcc, self._fpsCamera, (self._frameWidth, self._frameHeight))
         self._current_time = time.time()
-
-    def __del__(self):
-        'Terminated'
 
     def run(self):
         self._isRunning = True
@@ -27,12 +28,6 @@ class Surveillance(threading.Thread):
         self._camera.release()
         self._fileOut.release()
         cv2.destroyAllWindows()
-
-    def Stop(self):
-        self._isRunning = False
-
-    def __GetFileName(self):
-        return 'VIDEO' + datetime.datetime.now().strftime('%Y%m%d_%H%M%S') + '.avi'
 
     def __Record(self):
         while(self._camera.isOpened()):
@@ -45,8 +40,20 @@ class Surveillance(threading.Thread):
 
                 self._fileOut.write(frame)
 
+                self._runningLock.acquire()
                 if (self._isRunning == False):
+                    self._runningLock.release()
                     break
+                self._runningLock.release()
+
             else:
                 self.Stop()
                 break
+
+    def Stop(self):
+        self._runningLock.acquire()
+        self._isRunning = False
+        self._runningLock.release()
+
+    def __GetFileName(self):
+        return 'VIDEO' + datetime.datetime.now().strftime('%Y%m%d_%H%M%S') + '.avi'
