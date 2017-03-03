@@ -36,6 +36,9 @@ class DataManager(threading.Thread):
         self._isRunning = False
         self._runningLock.release()
 
+    def GetData(self):
+        return self._serialManager.GetScannerData()
+
     def __StoreInDB(self):
         # Store data from Serial into Database at every second
         dictScannerData = self._serialManager.GetScannerData()
