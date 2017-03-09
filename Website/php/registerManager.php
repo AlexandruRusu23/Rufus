@@ -4,7 +4,7 @@ $servername = "localhost";
 $username = "root";
 $password = "internet12";
 
-if(md5($_POST['password']) == md5($_POST['repeatPassword']))
+if(md5($_POST['password']) == md5($_POST['repeatPassword']) && strlen($_POST['password']) >= 8 )
 {
   try {
       $conn = new PDO("mysql:host=$servername;dbname=test_create_DB", $username, $password);
@@ -21,11 +21,12 @@ if(md5($_POST['password']) == md5($_POST['repeatPassword']))
       echo "Connection failed: " . $e->getMessage();
       }
 
-  header("Location:../pages/dashboard.html");
+  header("Location:../pages/login.php");
 }
 else
 {
-  header("Location:../pages/index.html");
+  // to send error message;
+  header("Location:../pages/login.php");
 }
 
 ?>

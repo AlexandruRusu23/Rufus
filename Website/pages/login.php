@@ -29,7 +29,7 @@
                 <h3 class="panel-title">Register a new account</h3>
             </div>
             <div class="panel-body">
-                <form role="form" method="post" action="../php/register.php">
+                <form role="form" method="post" action="../php/registerManager.php">
                     <fieldset>
                         <div class="form-group">
                             <input class="form-control" placeholder="First Name" name="firstName" type="text" autofocus>
@@ -63,7 +63,7 @@
                   <h3 class="panel-title">Sign In to Rufus</h3>
               </div>
               <div class="panel-body">
-                  <form role="form" method="post" action="../php/login.php">
+                  <form role="form" method="post" action="../php/loginManager.php">
                       <fieldset>
                           <div class="form-group">
                               <input class="form-control" placeholder="E-mail" name="email" type="email" autofocus>

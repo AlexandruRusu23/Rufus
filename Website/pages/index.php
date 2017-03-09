@@ -15,7 +15,7 @@
 
       <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
           <div class="navbar-header">
-              <a class="navbar-brand" href="dashboard.html">Rufus 1.0</a>
+              <a class="navbar-brand" href="index.php">Rufus 1.0</a>
           </div>
       </nav>
 
