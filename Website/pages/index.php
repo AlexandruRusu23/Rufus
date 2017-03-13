@@ -25,7 +25,7 @@
               <span class="icon-bar"></span>
             </button>
             <!-- <i class="fa fa-television" aria-hidden="true"></i> -->
-            <a class="navbar-brand" href="../pages/index.php"><img alt="Brand" src="../images/logo/logo3.png" class="img-responsive"/></a>
+            <a class="navbar-brand" href="../pages/index.php"><img alt="Brand" src="../images/logo/logo1.png" class="img-responsive"/></a>
           </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -36,14 +36,14 @@
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Menu <i class="fa fa-caret-down" aria-hidden="true"></i></span></a>
                 <ul class="dropdown-menu">
-                  <li><a href="#"><i class="fa fa-server fa-fw" aria-hidden="true"></i> Data Center</a>
+                  <li><a href="../pages/ambiance.php"><i class="fa fa-server fa-fw" aria-hidden="true"></i> Ambiance Watcher</a>
                   </li>
-                  <li><a href="#"><i class="fa fa-video-camera fa-fw" aria-hidden="true"></i> Surveillance</a>
+                  <li><a href="../pages/surveillance.php"><i class="fa fa-video-camera fa-fw" aria-hidden="true"></i> Surveillance</a>
                   </li>
-                  <li><a href="#"><i class="fa fa-cloud fa-fw" aria-hidden="true"></i> Cloud</a>
+                  <li><a href="../pages/cloud.php"><i class="fa fa-cloud fa-fw" aria-hidden="true"></i> Cloud</a>
                   </li>
                   <li role="separator" class="divider"></li>
-                  <li><a href="#"><i class="fa fa-wrench fa-fw" aria-hidden="true"></i> Configuration Board</a>
+                  <li><a href="../pages/settings.php"><i class="fa fa-wrench fa-fw" aria-hidden="true"></i> Configuration Board</a>
                   </li>
                 </ul>
               </li>
@@ -95,7 +95,7 @@
                                 </div>
                             </div>
                         </div>
-                        <a href="#">
+                        <a href="../pages/ambiance.php">
                             <div class="panel-footer panel-success">
                                 <span class="pull-left text-success">View Details</span>
                                 <span class="pull-right text-success"><i class="fa fa-arrow-circle-right fa-2x"></i></span>
@@ -117,7 +117,7 @@
                                 </div>
                             </div>
                         </div>
-                        <a href="#">
+                        <a href="../pages/cloud.php">
                             <div class="panel-footer panel-primary">
                                 <span class="pull-left text-primary">View Details</span>
                                 <span class="pull-right text-primary"><i class="fa fa-arrow-circle-right fa-2x"></i></span>
@@ -139,7 +139,7 @@
                                 </div>
                             </div>
                         </div>
-                        <a href="#">
+                        <a href="../pages/surveillance.php">
                             <div class="panel-footer panel-danger">
                                 <span class="pull-left text-danger">View Details</span>
                                 <span class="pull-right text-danger"><i class="fa fa-arrow-circle-right fa-2x"></i></span>
@@ -161,7 +161,7 @@
                                 </div>
                             </div>
                         </div>
-                        <a href="#">
+                        <a href="../pages/settings.php">
                             <div class="panel-footer panel-warning">
                                 <span class="pull-left text-warning">View Details</span>
                                 <span class="pull-right text-warning"><i class="fa fa-arrow-circle-right fa-2x"></i></span>
