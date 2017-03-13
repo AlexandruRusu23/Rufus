@@ -98,7 +98,7 @@
                         <a href="#">
                             <div class="panel-footer panel-success">
                                 <span class="pull-left text-success">View Details</span>
-                                <span class="pull-right text-success"><i class="fa fa-arrow-circle-right"></i></span>
+                                <span class="pull-right text-success"><i class="fa fa-arrow-circle-right fa-2x"></i></span>
                                 <div class="clearfix"></div>
                             </div>
                         </a>
@@ -120,7 +120,7 @@
                         <a href="#">
                             <div class="panel-footer panel-primary">
                                 <span class="pull-left text-primary">View Details</span>
-                                <span class="pull-right text-primary"><i class="fa fa-arrow-circle-right"></i></span>
+                                <span class="pull-right text-primary"><i class="fa fa-arrow-circle-right fa-2x"></i></span>
                                 <div class="clearfix"></div>
                             </div>
                         </a>
@@ -142,7 +142,7 @@
                         <a href="#">
                             <div class="panel-footer panel-danger">
                                 <span class="pull-left text-danger">View Details</span>
-                                <span class="pull-right text-danger"><i class="fa fa-arrow-circle-right"></i></span>
+                                <span class="pull-right text-danger"><i class="fa fa-arrow-circle-right fa-2x"></i></span>
                                 <div class="clearfix"></div>
                             </div>
                         </a>
@@ -164,7 +164,7 @@
                         <a href="#">
                             <div class="panel-footer panel-warning">
                                 <span class="pull-left text-warning">View Details</span>
-                                <span class="pull-right text-warning"><i class="fa fa-arrow-circle-right"></i></span>
+                                <span class="pull-right text-warning"><i class="fa fa-arrow-circle-right fa-2x"></i></span>
                                 <div class="clearfix"></div>
                             </div>
                         </a>
