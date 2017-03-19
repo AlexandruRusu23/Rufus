@@ -61,7 +61,7 @@
                   <li><a href="#"><i class="fa fa-cog fa-fw" aria-hidden="true"></i> Account Settings</a>
                   </li>
                   <li role="separator" class="divider"></li>
-                  <li><a href="#"><i class="fa fa-cogs fa-fw" aria-hidden="true"></i> Rufus Settings</a>
+                  <li><a href="../pages/settings.php"><i class="fa fa-cogs fa-fw" aria-hidden="true"></i> Rufus Settings</a>
                   </li>
                   <li role="separator" class="divider"></li>
                   <li>

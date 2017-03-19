@@ -25,7 +25,7 @@
               <span class="icon-bar"></span>
             </button>
             <!-- <i class="fa fa-television" aria-hidden="true"></i> -->
-            <a class="navbar-brand" href="../pages/index.php"><img alt="Brand" src="../images/logo/logo3.png" class="img-responsive"/></a>
+            <a class="navbar-brand" href="../pages/index.php"><img alt="Brand" src="../images/logo/logo1.png" class="img-responsive"/></a>
           </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -61,7 +61,7 @@
                   <li><a href="#"><i class="fa fa-cog fa-fw" aria-hidden="true"></i> Account Settings</a>
                   </li>
                   <li role="separator" class="divider"></li>
-                  <li><a href="#"><i class="fa fa-cogs fa-fw" aria-hidden="true"></i> Rufus Settings</a>
+                  <li><a href="../pages/settings.php"><i class="fa fa-cogs fa-fw" aria-hidden="true"></i> Rufus Settings</a>
                   </li>
                   <li role="separator" class="divider"></li>
                   <li>
