@@ -29,7 +29,7 @@ class Ui_Form(QtGui.QWidget):
     def __init__(self):
         QtGui.QWidget.__init__(self)
         self.setupUi(self)
-        self._dataManager = DataManager.DataManager('/dev/ttyACM0', 9600, 'test.db')
+        self._dataManager = DataManager.DataManager('/dev/ttyUSB0', 9600, 'test_create_DB')
         self._starter = 0
         self._stoper = 0
 

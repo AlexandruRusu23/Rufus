@@ -46,14 +46,17 @@ class SerialManager(threading.Thread):
                     if(line):
                         self.__StoreInDictionary(line)
                     line = self.__serialFile.readline()
+            ts = time.time()
+            timestamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
             self._scannerDictLock.acquire()
-            self.__dictScannerData['time_collected'] = datetime.datetime.now()
+            self.__dictScannerData['time_collected'] = timestamp
             self._scannerDictLock.release()
 
     def __StoreInDictionary(self, lineToStore):
         """
         Convert from string to dictionary fields
         """
+
         lineToStoreTokenized = re.findall(r"[\w.]+", lineToStore)
         for i in range(len(lineToStoreTokenized)):
             if ('gas' in lineToStoreTokenized[i]):

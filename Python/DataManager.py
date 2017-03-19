@@ -2,6 +2,7 @@ import SerialManager
 import DatabaseManager
 import threading
 import time
+import datetime
 
 class DataManager(threading.Thread):
     def __init__(self, serialName, serialRatio, databaseName):
@@ -18,7 +19,6 @@ class DataManager(threading.Thread):
         self._runningLock.acquire()
         self._isRunning = True
         self._runningLock.release()
-        self._databaseManager.CreateTable()
         while(True):
             self.__StoreInDB()
             self._runningLock.acquire()
@@ -42,5 +42,23 @@ class DataManager(threading.Thread):
     def __StoreInDB(self):
         # Store data from Serial into Database at every second
         dictScannerData = self._serialManager.GetScannerData()
-        self._databaseManager.InsertScannerData(dictScannerData)
-        time.sleep(1)
+        valuesList = [dictScannerData.get('distance'), dictScannerData.get('time_collected')]
+        self._databaseManager.InsertDataInDatabase(valuesList, 'HOME_SCANNER_DATABASE_DISTANCE')
+
+        valuesList = [dictScannerData.get('temperature'), dictScannerData.get('time_collected')]
+        self._databaseManager.InsertDataInDatabase(valuesList, 'HOME_SCANNER_DATABASE_TEMPERATURE')
+
+        valuesList = [dictScannerData.get('motion'), dictScannerData.get('time_collected')]
+        self._databaseManager.InsertDataInDatabase(valuesList, 'HOME_SCANNER_DATABASE_MOTION')
+
+        valuesList = [dictScannerData.get('humidity'), dictScannerData.get('time_collected')]
+        self._databaseManager.InsertDataInDatabase(valuesList, 'HOME_SCANNER_DATABASE_HUMIDITY')
+
+        valuesList = [dictScannerData.get('mq2_1'), dictScannerData.get('mq2_2'), dictScannerData.get('time_collected')]
+        self._databaseManager.InsertDataInDatabase(valuesList, 'HOME_SCANNER_DATABASE_GAS_RECORD')
+
+        valuesList = [dictScannerData.get('light_1'), dictScannerData.get('light_2'), dictScannerData.get('time_collected')]
+        self._databaseManager.InsertDataInDatabase(valuesList, 'HOME_SCANNER_DATABASE_LIGHT')
+
+        print "Incarc"
+        time.sleep(5)
