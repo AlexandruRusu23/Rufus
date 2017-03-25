@@ -75,6 +75,123 @@
       </nav>
       <!-- /.navbar -->
 
+       <div class="container">
+            <!-- /.row -->
+            <div class="row">
+                <div class="col-lg-3 col-md-6">
+                    <div class="panel panel-success">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-thermometer-half fa-5x" aria-hidden="true"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="h3"><strong>22.3 &#8451;</strong></div>
+                                    <div>Temperature</div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="../pages/ambiance.php">
+                            <div class="panel-footer panel-success">
+                                <span class="pull-left text-success">View Details</span>
+                                <span class="pull-right text-success"><i class="fa fa-arrow-circle-right fa-2x"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-tint fa-5x" aria-hidden="true"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="h3"><strong>33%</strong></div>
+                                    <div>Humidity</div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="../pages/ambiance.php">
+                            <div class="panel-footer panel-primary">
+                                <span class="pull-left text-primary">View Details</span>
+                                <span class="pull-right text-primary"><i class="fa fa-arrow-circle-right fa-2x"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="panel panel-danger">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-fire fa-5x" aria-hidden="true"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="h3"><strong>Under control</strong></div>
+                                    <div>Smoke and Gas</div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="../pages/ambiance.php">
+                            <div class="panel-footer panel-danger">
+                                <span class="pull-left text-danger">View Details</span>
+                                <span class="pull-right text-danger"><i class="fa fa-arrow-circle-right fa-2x"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="panel panel-warning">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-lightbulb-o fa-5x" aria-hidden="true"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="h3"><strong>Dark</strong></div>
+                                    <div>Light</div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="../pages/ambiance.php">
+                            <div class="panel-footer panel-warning">
+                                <span class="pull-left text-warning">View Details</span>
+                                <span class="pull-right text-warning"><i class="fa fa-arrow-circle-right fa-2x"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-eye fa-5x" aria-hidden="true"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="h3"><strong>Clean</strong></div>
+                                    <div>Motion</div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="../pages/ambiance.php">
+                            <div class="panel-footer panel-info">
+                                <span class="pull-left text-info">View Details</span>
+                                <span class="pull-right text-info"><i class="fa fa-arrow-circle-right fa-2x"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!-- /.row -->
+        </div>
+
     </div>
 
   </body>
