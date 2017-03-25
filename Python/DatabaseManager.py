@@ -1,7 +1,6 @@
 import MySQLdb
 import time
 import datetime
-import UserDataProvider
 
 class DatabaseManager:
     def __init__(self, databaseName):
