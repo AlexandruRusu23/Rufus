@@ -49,15 +49,11 @@
             </ul>
 
           <ul class="nav navbar-nav navbar-right">
-              <li><a href="#"><i class="fa fa-mobile fa-fw" aria-hidden="true"></i>Contact</a>
-              </li>
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user-circle-o fa-fw" aria-hidden="true"></i>User Name <i class="fa fa-caret-down" aria-hidden="true"></i></a>
                 <ul class="dropdown-menu">
                   <li>
-                    <a href="#"><i class="fa fa-user fa-fw" aria-hidden="true"></i> Account</a>
-                  </li>
-                  <li><a href="#"><i class="fa fa-cog fa-fw" aria-hidden="true"></i> Account Settings</a>
+                    <a href="../pages/account.php"><i class="fa fa-user fa-fw" aria-hidden="true"></i> Account</a>
                   </li>
                   <li role="separator" class="divider"></li>
                   <li><a href="../pages/settings.php"><i class="fa fa-cogs fa-fw" aria-hidden="true"></i> Rufus Settings</a>
@@ -181,7 +177,7 @@
                         <!-- /.panel-heading -->
                         <div class="panel-body">
                           <div class="list-group">
-                            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+                            <a class="list-group-item list-group-item-action flex-column align-items-start">
                               <div class="d-flex w-100 justify-content-between">
                                 <h4 class="mb-0"><i class="fa fa-cogs fa-fw"></i> List group item heading</h4>
                                 <span class="pull-top text-muted small"><em>4 minutes ago</em>
@@ -189,7 +185,7 @@
                               <p class="h5">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
                               <small>Donec id elit non mi porta.</small>
                             </a>
-                            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+                            <a class="list-group-item list-group-item-action flex-column align-items-start">
                               <div class="d-flex w-100 justify-content-between">
                                 <h4 class="mb-0"><i class="fa fa-cogs fa-fw"></i> List group item heading</h4>
                                 <span class="pull-top text-muted small"><em>4 minutes ago</em>
@@ -197,7 +193,7 @@
                               <p class="h5">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
                               <small class="text-muted">Donec id elit non mi porta.</small>
                             </a>
-                            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+                            <a class="list-group-item list-group-item-action flex-column align-items-start">
                               <div class="d-flex w-100 justify-content-between">
                                 <h4 class="mb-0"><i class="fa fa-cogs fa-fw"></i> List group item heading</h4>
                                 <span class="pull-top text-muted small"><em>4 minutes ago</em>
@@ -267,7 +263,7 @@
                                 </a>
                             </div>
                             <!-- /.list-group -->
-                            <a href="#" class="btn btn-default btn-block">View All Alerts</a>
+                            <a href="../pages/notifications.php" class="btn btn-default btn-block">View All Alerts</a>
                         </div>
                         <!-- /.panel-body -->
                     </div>

@@ -24,8 +24,7 @@
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-            <!-- <i class="fa fa-television" aria-hidden="true"></i> -->
-            <a class="navbar-brand" href="../pages/index.php"><img alt="Brand" src="../images/logo/logo4.png" class="img-responsive"/></a>
+            <a class="navbar-brand" href="../pages/index.php"><i class="fa fa-user fa-fw fa-3x" aria-hidden="true"></i></a>
           </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
