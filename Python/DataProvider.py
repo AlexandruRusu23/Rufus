@@ -1,6 +1,6 @@
 import time
 
-class UserDataProvider:
+class DataProvider:
     def __init__(self):
         print "Hello!"
 
