@@ -9,9 +9,6 @@ class SerialManager(threading.Thread):
     Class implemented to manipulate the Microcontroller's Serial
     """
     def __init__(self, serialName, serialRatio):
-        """
-        Serial Manager Constructor Args: serial name, serial ratio ('/dev/ttyACM0', 9600)
-        """
         threading.Thread.__init__(self)
         self._runningLock = threading.Lock()
         self._scannerDictLock = threading.Lock()
@@ -32,6 +29,7 @@ class SerialManager(threading.Thread):
                 self._runningLock.release()
                 break
             self._runningLock.release()
+            print self.__dictScannerData
         self.__serialFile.close();
 
     def __Reader(self):

@@ -17,6 +17,10 @@
 #define   RGB_LED_G_PIN         10
 #define   RBG_LED_R_PIN         11
 
+#define   GAS                   20
+#define   MOTION                21
+#define   DISTANCE              22
+
 struct ScannerData
 {
   int                 mq2_value[2];
@@ -27,8 +31,12 @@ struct ScannerData
 ScannerData           scannerData;
 
 // timers
-unsigned long         scanner_timer;
+unsigned long         distance_scanner_timer;
+unsigned long         motion_scanner_timer;
+unsigned long         gas_scanner_timer;
 unsigned long         controller_timer;
+
+bool isMoving;
 
 // Command Controller vars
 unsigned long         serialData;
@@ -59,6 +67,8 @@ void setup() {
   pinMode(MQ2_1_PIN,        INPUT);
   pinMode(MQ2_2_PIN,        INPUT);
 
+  isMoving = false;
+
   delay(500);
 }
 
@@ -70,7 +80,7 @@ void loop() {
     controller_timer = millis();
   }
 
-  if(millis() - scanner_timer > 2000)
+  if(millis() - distance_scanner_timer > 1000)
   {
   //// Distance sensor
     long duration;
@@ -80,36 +90,82 @@ void loop() {
     delayMicroseconds(10); // Added this line
     digitalWrite(TRIG_PIN, LOW);
     duration = pulseIn(ECHO_PIN, HIGH);
-    scannerData.distance_value = (duration/2) / 29.1;
+
     
-  //// Gas sensor
-    scannerData.mq2_value[0] = analogRead(MQ2_1_PIN);
-    scannerData.mq2_value[1] = analogRead(MQ2_2_PIN);
+    int auxValue = (duration/2) / 29.1;
+    if (abs(auxValue - scannerData.distance_value) > 2)
+    { 
+      scannerData.distance_value = (duration/2) / 29.1;
+      PrintScannerData(DISTANCE);
+    }
+    distance_scanner_timer = millis();
+  }
   
+  if(millis() - gas_scanner_timer > 3000)
+  {
+  //// Gas sensor
+    int auxValue1 = analogRead(MQ2_1_PIN);
+    int auxValue2 = analogRead(MQ2_2_PIN);
+    if (abs(scannerData.mq2_value[0] - auxValue1) > 25 || abs(scannerData.mq2_value[0] - auxValue2) > 25)
+    {  
+      scannerData.mq2_value[0] = analogRead(MQ2_1_PIN);
+      scannerData.mq2_value[1] = analogRead(MQ2_2_PIN);
+      PrintScannerData(GAS);
+    }
+    gas_scanner_timer = millis();
+  }
+  
+  if(millis() - motion_scanner_timer > 100)
+  {
   //// Motion sensor
     scannerData.motion_value = digitalRead(MOTION_PIN);
-  
-    PrintScannerData();
 
-    scanner_timer = millis();
+    if(scannerData.motion_value == 1)
+    {
+      if (isMoving == false)
+      {
+        PrintScannerData(MOTION);
+        isMoving = true;
+      }
+    }
+    else
+    {
+      if (isMoving == true)
+      {
+        PrintScannerData(MOTION);
+        isMoving = false; 
+      }
+    }
+    
+    motion_scanner_timer = millis();
   }
 }
 
-void PrintScannerData()
+void PrintScannerData(int type)
 {
   Serial.println("scanner_data");
-  
-  Serial.print("distance: ");
-  Serial.println(scannerData.distance_value);
 
-  Serial.print("gas: ");
-  Serial.print(scannerData.mq2_value[0]);
-  Serial.print("; ");
-  Serial.println(scannerData.mq2_value[1]);
-
-  Serial.print("motion: ");
-  Serial.println(scannerData.motion_value);
-  
+  switch(type)
+  {
+    case DISTANCE:
+    {
+      Serial.print("distance: ");
+      Serial.println(scannerData.distance_value);
+      break;
+    }
+    case GAS:
+    { 
+      Serial.print("gas: ");
+      Serial.println((scannerData.mq2_value[0] + scannerData.mq2_value[1]) / 2);
+      break;
+    }
+    case MOTION:
+    {
+      Serial.print("motion: ");
+      Serial.println(scannerData.motion_value);
+      break;
+    }
+  }
   Serial.println("end_scanner_data");
   Serial.println("");
 }

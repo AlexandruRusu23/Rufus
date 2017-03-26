@@ -3,6 +3,10 @@
 #define TEMPERATURE_PIN     A4
 #define HUMIDITY_PIN        A5
 
+#define LIGHT               21
+#define TEMPERATURE         22
+#define HUMIDITY            23
+
 struct ScannerData
 {
   int                   light_value[2];
@@ -20,7 +24,9 @@ float                   pretruehum;
 long                    pretruehumconst; 
 long                    valb;
 
-unsigned long           scanner_timer;
+unsigned long           light_scanner_timer;
+unsigned long           temperature_scanner_timer;
+unsigned long           humidity_scanner_timer;
 
 void setup() {
   delay(500);
@@ -36,15 +42,35 @@ void setup() {
 }
 
 void loop() {
-  if(millis() - scanner_timer > 5000)
+  
+  if (millis() - light_scanner_timer > 1000)
   {
   //// Light sensor
-    scannerData.light_value[0] = analogRead(LIGHT_1_PIN);
-    scannerData.light_value[1] = analogRead(LIGHT_2_PIN);
-  
-  //// Temperature sensor
-    scannerData.temperature_value = ReadTemperature(10, TEMPERATURE_PIN);
-  
+    int auxValue1 = analogRead(LIGHT_1_PIN);
+    int auxValue2 = analogRead(LIGHT_2_PIN);
+    if(abs(auxValue1 - scannerData.light_value[0]) > 50 || abs(auxValue2 - scannerData.light_value[1]) > 50)
+    {
+      scannerData.light_value[0] = analogRead(LIGHT_1_PIN);
+      scannerData.light_value[1] = analogRead(LIGHT_2_PIN);
+      PrintScannerData(LIGHT);
+    }
+    light_scanner_timer = millis();
+  }
+
+  if (millis() - temperature_scanner_timer > 1000)
+  {
+    //// Temperature sensor
+    float auxValue = ReadTemperature(10, TEMPERATURE_PIN);
+    if (abs(auxValue - scannerData.temperature_value) > 0.5)
+    {
+      scannerData.temperature_value = ReadTemperature(10, TEMPERATURE_PIN);
+      PrintScannerData(TEMPERATURE);
+    }
+    temperature_scanner_timer = millis();
+  }
+
+  if (millis() - humidity_scanner_timer > 1000)
+  {
   //// Humidity sensor
     valb = analogRead(HUMIDITY_PIN); // humidity calculation
     prehum = (valb/5);
@@ -52,11 +78,14 @@ void loop() {
     humi = prehum - humconst;
     pretruehumconst = 0.00216*scannerData.temperature_value;
     pretruehum = 1.0546-pretruehumconst;
-    scannerData.humidity_value = humi/pretruehum;
 
-    PrintScannerData();
-
-    scanner_timer = millis();
+    float auxValue = humi/pretruehum;
+    if (abs(auxValue - scannerData.humidity_value) > 30)
+    {
+      scannerData.humidity_value = humi/pretruehum;
+      PrintScannerData(HUMIDITY);
+    }
+    humidity_scanner_timer = millis();
   }
 }
 
@@ -90,20 +119,31 @@ int Humidity_Smooth(int data, float filterVal, float smoothedVal)
   return (int)smoothedVal;
 }
 
-void PrintScannerData()
+void PrintScannerData(int type)
 {
   Serial.println("scanner_data");
 
-  Serial.print("light: ");
-  Serial.print(scannerData.light_value[0]);
-  Serial.print("; ");
-  Serial.println(scannerData.light_value[1]);
-
-  Serial.print("temperature: ");
-  Serial.println(scannerData.temperature_value);
-
-  Serial.print("humidity: ");
-  Serial.println(scannerData.humidity_value);
+  switch(type)
+  {
+    case LIGHT:
+    {
+      Serial.print("light: ");
+      Serial.println((scannerData.light_value[0] + scannerData.light_value[1])/2);
+      break;
+    }
+    case TEMPERATURE:
+    {
+      Serial.print("temperature: ");
+      Serial.println(scannerData.temperature_value);
+      break;
+    }
+    case HUMIDITY:
+    {
+      Serial.print("humidity: ");
+      Serial.println(scannerData.humidity_value);
+      break;
+    }
+  }
   
   Serial.println("end_scanner_data");
   Serial.println("");

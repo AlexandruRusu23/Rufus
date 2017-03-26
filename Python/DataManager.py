@@ -42,14 +42,17 @@ class DataManager(threading.Thread):
     def __StoreInDB(self):
         # Store data from Serial into Database at every second
         dictScannerData = self._serialManager.GetScannerData()
-        valuesList = [dictScannerData.get('distance'), dictScannerData.get('time_collected')]
-        self._databaseManager.InsertDataInDatabase(valuesList, 'HOME_SCANNER_DATABASE_DISTANCE')
+
+        #we will use this data only for surveillance mode
+        #valuesList = [dictScannerData.get('distance'), dictScannerData.get('time_collected')]
+        #self._databaseManager.InsertDataInDatabase(valuesList, 'HOME_SCANNER_DATABASE_DISTANCE')
 
         valuesList = [dictScannerData.get('temperature'), dictScannerData.get('time_collected')]
         self._databaseManager.InsertDataInDatabase(valuesList, 'HOME_SCANNER_DATABASE_TEMPERATURE')
 
-        valuesList = [dictScannerData.get('motion'), dictScannerData.get('time_collected')]
-        self._databaseManager.InsertDataInDatabase(valuesList, 'HOME_SCANNER_DATABASE_MOTION')
+        if dictScannerData.get('motion') == 1:
+            valuesList = [dictScannerData.get('motion'), dictScannerData.get('time_collected')]
+            self._databaseManager.InsertDataInDatabase(valuesList, 'HOME_SCANNER_DATABASE_MOTION')
 
         valuesList = [dictScannerData.get('humidity'), dictScannerData.get('time_collected')]
         self._databaseManager.InsertDataInDatabase(valuesList, 'HOME_SCANNER_DATABASE_HUMIDITY')
