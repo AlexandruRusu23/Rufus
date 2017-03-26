@@ -1,11 +1,12 @@
 import time
+import yaml
 
 class DataProvider:
     def __init__(self):
-        print "Hello!"
+        self.__stringTable = yaml.load(open('Strings.txt', 'r'))
 
-    def GetDBUserName(self):
-        return 'root'
-
-    def GetDBUserPassword(self):
-        return 'internet12'
+    def GetStringTable(self, stringName):
+        if stringName in self.__stringTable.keys():
+            return self.__stringTable[stringName]
+        else:
+            return ''

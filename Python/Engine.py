@@ -1,18 +1,23 @@
-import Surveillance
-import DataManager
-import time
+import DataProvider
+import os
+import yaml
 
-def main():
-    """surveillance = Surveillance.Surveillance(640, 480, 30)"""
-    dataManager = DataManager.DataManager('/dev/ttyUSB0', 9600, 'test_create_DB')
+class Engine:
 
-    """surveillance.start()"""
-    dataManager.start()
+    dataProvider = DataProvider.DataProvider() #static
 
-    time.sleep(10)
+    def __init__(self):
+        self._arduinoBoards = []
 
-    """surveillance.Stop()"""
-    dataManager.Stop()
+    def ClearData(self):
+        self._arduinoBoards = []
 
-if __name__ == '__main__':
-    main()
+    def FindAllDevices(self):
+        self.ClearData()
+        filesToSearchIn = os.listdir(Engine.dataProvider.GetStringTable('PATH_ARDUINO_BOARDS'))
+        fileSubstr = Engine.dataProvider.GetStringTable('SUBSTR_ARDUINO_FILE')
+        for file in filesToSearchIn:
+            if fileSubstr in file:
+                self._arduinoBoards.append(file)
+
+        print self._arduinoBoards
