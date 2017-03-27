@@ -4,10 +4,10 @@
  */
 
 // PINS DISTRIBUTION
-#define   RED_LED_PIN           2
-#define   GREEN_LED_PIN         3
-#define   BLUE_LED_PIN          4
-#define   YELLOW_LED_PIN        5
+#define   BLUE_LED_PIN          2
+#define   RED_LED_PIN           3
+#define   YELLOW_LED_PIN        4
+#define   GREEN_LED_PIN         5
 #define   RGB_LED_B_PIN         9
 #define   RGB_LED_G_PIN         10
 #define   RBG_LED_R_PIN         11

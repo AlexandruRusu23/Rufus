@@ -53,13 +53,13 @@ class AnimationManager(threading.Thread):
         time.sleep(timeout)
 
     def __LightModeColor(self, colorStr, intensity, timeout):
-        colorInt = 2 #green mode by default
+        colorInt = 5 #green mode by default
         if colorStr == 'yellow':
-            colorInt = 3
-        if colorStr == 'red':
             colorInt = 4
+        if colorStr == 'red':
+            colorInt = 3
         if colorStr == 'blue':
-            colorInt = 5
+            colorInt = 2
         self.__serialLock.acquire()
         self.__serialManager.write(AnimationManager.dataProvider.GetStringTable('DIGITAL_WRITE') + str(colorInt) + '/' + str(intensity)+ '/')
         self.__serialLock.release()
