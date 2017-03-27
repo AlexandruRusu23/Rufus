@@ -29,7 +29,7 @@ class SerialManager(threading.Thread):
                 self._runningLock.release()
                 break
             self._runningLock.release()
-            print self.__dictScannerData
+            #print self.__dictScannerData
         self.__serialFile.close();
 
     def __Reader(self):
@@ -59,8 +59,7 @@ class SerialManager(threading.Thread):
         for i in range(len(lineToStoreTokenized)):
             if ('gas' in lineToStoreTokenized[i]):
                 self._scannerDictLock.acquire()
-                self.__dictScannerData['mq2_1'] = lineToStoreTokenized[i+1]
-                self.__dictScannerData['mq2_2'] = lineToStoreTokenized[i+2]
+                self.__dictScannerData['mq2'] = lineToStoreTokenized[i+1]
                 self._scannerDictLock.release()
                 continue
             if ('temperature' in lineToStoreTokenized[i]):
@@ -70,8 +69,7 @@ class SerialManager(threading.Thread):
                 continue
             if ('light' in lineToStoreTokenized[i]):
                 self._scannerDictLock.acquire()
-                self.__dictScannerData['light_1'] = lineToStoreTokenized[i+1]
-                self.__dictScannerData['light_2'] = lineToStoreTokenized[i+2]
+                self.__dictScannerData['light'] = lineToStoreTokenized[i+1]
                 self._scannerDictLock.release()
                 continue
             if ('humidity' in lineToStoreTokenized[i]):
@@ -113,6 +111,7 @@ class SerialManager(threading.Thread):
         """
         self._scannerDictLock.acquire()
         output = self.__dictScannerData
+        self.__dictScannerData = {}
         self._scannerDictLock.release()
         return output
 

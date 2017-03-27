@@ -44,24 +44,23 @@ class DataManager(threading.Thread):
         dictScannerData = self._serialManager.GetScannerData()
 
         #we will use this data only for surveillance mode
-        #valuesList = [dictScannerData.get('distance'), dictScannerData.get('time_collected')]
-        #self._databaseManager.InsertDataInDatabase(valuesList, 'HOME_SCANNER_DATABASE_DISTANCE')
+        valuesList = [dictScannerData.get('distance'), dictScannerData.get('time_collected')]
+        self._databaseManager.InsertDataInDatabase(valuesList, 'HOME_SCANNER_DATABASE_DISTANCE')
 
         valuesList = [dictScannerData.get('temperature'), dictScannerData.get('time_collected')]
         self._databaseManager.InsertDataInDatabase(valuesList, 'HOME_SCANNER_DATABASE_TEMPERATURE')
 
-        if dictScannerData.get('motion') == 1:
-            valuesList = [dictScannerData.get('motion'), dictScannerData.get('time_collected')]
-            self._databaseManager.InsertDataInDatabase(valuesList, 'HOME_SCANNER_DATABASE_MOTION')
+        valuesList = [dictScannerData.get('motion'), dictScannerData.get('time_collected')]
+        self._databaseManager.InsertDataInDatabase(valuesList, 'HOME_SCANNER_DATABASE_MOTION')
 
         valuesList = [dictScannerData.get('humidity'), dictScannerData.get('time_collected')]
         self._databaseManager.InsertDataInDatabase(valuesList, 'HOME_SCANNER_DATABASE_HUMIDITY')
 
-        valuesList = [dictScannerData.get('mq2_1'), dictScannerData.get('mq2_2'), dictScannerData.get('time_collected')]
+        valuesList = [dictScannerData.get('mq2'), dictScannerData.get('time_collected')]
         self._databaseManager.InsertDataInDatabase(valuesList, 'HOME_SCANNER_DATABASE_GAS_RECORD')
 
-        valuesList = [dictScannerData.get('light_1'), dictScannerData.get('light_2'), dictScannerData.get('time_collected')]
+        valuesList = [dictScannerData.get('light'), dictScannerData.get('time_collected')]
         self._databaseManager.InsertDataInDatabase(valuesList, 'HOME_SCANNER_DATABASE_LIGHT')
 
-        print "Incarc"
-        time.sleep(5)
+        print "[DataManager] Incarc"
+        time.sleep(0.5)

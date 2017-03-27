@@ -42,9 +42,9 @@ class AnimationManager(threading.Thread):
         self.__TurnAllOff()
 
     def __LightOneColor(self, colorStr, intensity, timeout):
-        colorInt = 9 #blue by default
+        colorInt = 11 #blue by default
         if colorStr == 'red':
-            colorInt = 11
+            colorInt = 9
         if colorStr == 'green':
             colorInt = 10
         self.__serialLock.acquire()

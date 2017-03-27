@@ -27,16 +27,14 @@ class DatabaseManager:
 
             sqlCommand = """CREATE TABLE IF NOT EXISTS HOME_SCANNER_DATABASE_GAS_RECORD
                 (ID              INT            NOT NULL AUTO_INCREMENT,
-                VALUE_1          INT            NOT NULL,
-                VALUE_2          INT            NOT NULL,
+                VALUE            DOUBLE         NOT NULL,
                 TIME_COLLECTED   DATETIME       NOT NULL,
                 PRIMARY KEY (ID));"""
             self._cursor.execute(sqlCommand)
 
             sqlCommand = """CREATE TABLE IF NOT EXISTS HOME_SCANNER_DATABASE_LIGHT
                 (ID              INT            NOT NULL AUTO_INCREMENT,
-                VALUE_1          INT            NOT NULL,
-                VALUE_2          INT            NOT NULL,
+                VALUE            INT            NOT NULL,
                 TIME_COLLECTED   DATETIME       NOT NULL,
                 PRIMARY KEY (ID));"""
             self._cursor.execute(sqlCommand)
@@ -69,14 +67,11 @@ class DatabaseManager:
     def InsertDataInDatabase(self, valuesList, tableName):
         self.Connect()
         try:
-            if valuesList[0] == None:
+            if None in valuesList:
                 return
             self._cursor = self._dbConnection.cursor()
             var_string = ', '.join(['%s'] * len(valuesList))
-            if len(valuesList) == 2:
-                query_string = "INSERT INTO %s (value, time_collected) VALUES (%s);" % (tableName, var_string)
-            else:
-                query_string = "INSERT INTO %s (value_1, value_2, time_collected) VALUES (%s);" % (tableName, var_string)
+            query_string = "INSERT INTO %s (value, time_collected) VALUES (%s);" % (tableName, var_string)
             self._cursor.execute(query_string, valuesList)
             self._dbConnection.commit()
         except TypeError as e:
