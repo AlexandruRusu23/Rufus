@@ -1,8 +1,11 @@
+"""
+Serial Manager Module
+"""
 import threading
-import serial
 import time
 import datetime
 import re
+import serial
 
 class SerialManager(threading.Thread):
     """
@@ -10,119 +13,90 @@ class SerialManager(threading.Thread):
     """
     def __init__(self, serialName, serialRatio):
         threading.Thread.__init__(self)
-        self._runningLock = threading.Lock()
-        self._scannerDictLock = threading.Lock()
-        self.__serialFile = serial.Serial(serialName, serialRatio)
-        self.__listScannerCommands = []
-        self.__dictScannerData = {}
-        self._isRunning = False
+        self._running_lock = threading.Lock()
+        self._scanner_dict_lock = threading.Lock()
+        self.__serial_file = serial.Serial(serialName, serialRatio)
+        self.__list_animator_commands = []
+        self.__dict_scanner_data = {}
+        self._is_running = False
 
     def run(self):
-        self._runningLock.acquire()
-        self._isRunning = True
-        self._runningLock.release()
-        while(True):
-            self.__Reader()
+        self._running_lock.acquire()
+        self._is_running = True
+        self._running_lock.release()
+        while True:
+            self.__reader()
 
-            self._runningLock.acquire()
-            if(self._isRunning == False):
-                self._runningLock.release()
+            self._running_lock.acquire()
+            if bool(self._is_running) is False:
+                self._running_lock.release()
                 break
-            self._runningLock.release()
-            #print self.__dictScannerData
-        self.__serialFile.close();
+            self._running_lock.release()
+            print self.__dict_scanner_data
+        self.__serial_file.close()
 
-    def __Reader(self):
+    def __reader(self):
         """
         Method created to read from Microcontroller's Serial
         """
-        line = self.__serialFile.readline()
-        if(line):
-            if('scanner_data' in line):
-                line = self.__serialFile.readline()
-                while('end_scanner_data' not in line):
-                    if(line):
-                        self.__StoreInDictionary(line)
-                    line = self.__serialFile.readline()
-            ts = time.time()
-            timestamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-            self._scannerDictLock.acquire()
-            self.__dictScannerData['time_collected'] = timestamp
-            self._scannerDictLock.release()
+        line = self.__serial_file.readline()
+        if line:
+            if 'scanner_data' in line:
+                line = self.__serial_file.readline()
+                while 'end_scanner_data' not in line:
+                    if line:
+                        self.__store_in_dictionary(line)
+                    line = self.__serial_file.readline()
+            timest = time.time()
+            timestamp = datetime.datetime.fromtimestamp(timest).strftime('%Y-%m-%d %H:%M:%S')
+            self._scanner_dict_lock.acquire()
+            self.__dict_scanner_data['time_collected'] = timestamp
+            self._scanner_dict_lock.release()
 
-    def __StoreInDictionary(self, lineToStore):
+    def __store_in_dictionary(self, line_to_store):
         """
         Convert from string to dictionary fields
         """
+        line_to_store_tokenized = re.findall(r"[\w.]+", line_to_store)
+        if len(line_to_store_tokenized) > 1:
+            self.__dict_scanner_data[line_to_store_tokenized[0]] = line_to_store_tokenized[1]
 
-        lineToStoreTokenized = re.findall(r"[\w.]+", lineToStore)
-        for i in range(len(lineToStoreTokenized)):
-            if ('gas' in lineToStoreTokenized[i]):
-                self._scannerDictLock.acquire()
-                self.__dictScannerData['mq2'] = lineToStoreTokenized[i+1]
-                self._scannerDictLock.release()
-                continue
-            if ('temperature' in lineToStoreTokenized[i]):
-                self._scannerDictLock.acquire()
-                self.__dictScannerData['temperature'] = lineToStoreTokenized[i+1]
-                self._scannerDictLock.release()
-                continue
-            if ('light' in lineToStoreTokenized[i]):
-                self._scannerDictLock.acquire()
-                self.__dictScannerData['light'] = lineToStoreTokenized[i+1]
-                self._scannerDictLock.release()
-                continue
-            if ('humidity' in lineToStoreTokenized[i]):
-                self._scannerDictLock.acquire()
-                self.__dictScannerData['humidity'] = lineToStoreTokenized[i+1]
-                self._scannerDictLock.release()
-                continue
-            if ('distance' in lineToStoreTokenized[i]):
-                self._scannerDictLock.acquire()
-                self.__dictScannerData['distance'] = lineToStoreTokenized[i+1]
-                self._scannerDictLock.release()
-                continue
-            if ('motion' in lineToStoreTokenized[i]):
-                self._scannerDictLock.acquire()
-                self.__dictScannerData['motion'] = lineToStoreTokenized[i+1]
-                self._scannerDictLock.release()
-                continue
-
-    def __Writer(self):
+    def __writer(self):
         """
         Method created to write on Microcontroller's Serial
         """
-        for i in range(len(self.__listScannerCommands)):
-            self.__serialFile.write(self.__listScannerCommands[i])
-            time.sleep(50.0 / 1000.0)
-        self.__listScannerCommands = []
+        for element in enumerate(self.__list_animator_commands):
+            if len(element) > 1:
+                self.__serial_file.write(str(element[1]))
+                time.sleep(50.0 / 1000.0)
+        self.__list_animator_commands = []
 
-    def Stop(self):
+    def stop(self):
         """
-        Stop the Serial Manager
+        stop the Serial Manager
         """
-        self._runningLock.acquire()
-        self._isRunning = False
-        self._runningLock.release()
+        self._running_lock.acquire()
+        self._is_running = False
+        self._running_lock.release()
 
-    def GetScannerData(self):
+    def get_scanner_data(self):
         """
         Get the data from Serial from a dictionary which is returned by the function
         """
-        self._scannerDictLock.acquire()
-        output = self.__dictScannerData
-        self.__dictScannerData = {}
-        self._scannerDictLock.release()
+        self._scanner_dict_lock.acquire()
+        output = self.__dict_scanner_data
+        self.__dict_scanner_data = {}
+        self._scanner_dict_lock.release()
         return output
 
-    def SetScannerCommands(self, listScannerCommands):
+    def set_scanner_commands(self, list_scanner_commands):
         """
         send a list of commands for SerialManager to be send to Microcontroller
         """
-        self.__listScannerCommands = listScannerCommands
+        self.__list_animator_commands = list_scanner_commands
 
-    def ExecuteCommands(self):
+    def execute_commands(self):
         """
-        Send to Microcontroller's Serial the commands stored in __listScannerCommands
+        Send to Microcontroller's Serial the commands stored in __list_scanner_commands
         """
-        self.__Writer()
+        self.__writer()
