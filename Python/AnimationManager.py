@@ -10,34 +10,71 @@ class AnimationManager(threading.Thread):
     """
     Animation Manager class
     """
-
     data_provider = DataProvider.DataProvider() #static
+
+    _ON = 1
+    _OFF = 0
+    _RED_COLOR = data_provider.get_string_table('RED_COLOR_PIN')
+    _GREEN_COLOR = data_provider.get_string_table('GREEN_COLOR_PIN')
+    _BLUE_COLOR = data_provider.get_string_table('BLUE_COLOR_PIN')
+    _BLUE_MODE = data_provider.get_string_table('BLUE_MODE_PIN')
+    _RED_MODE = data_provider.get_string_table('RED_MODE_PIN')
+    _YELLOW_MODE = data_provider.get_string_table('YELLOW_MODE_PIN')
+    _GREEN_MODE = data_provider.get_string_table('GREEN_MODE_PIN')
 
     def __init__(self):
         threading.Thread.__init__(self)
-        board_ratio = AnimationManager.data_provider.get_string_table('ANIMATOR_BOARD_RATIO')
-        board_name = AnimationManager.data_provider.get_board_name('ANIMATOR_BOARD')
-        self.__serial_manager = SerialManager.SerialManager(board_name, int(board_ratio))
-        self.__alarm_on = False
-        self.__thread_lock = threading.Lock()
-        self.__running_lock = threading.Lock()
-        self.__serial_lock = threading.Lock()
+        self.__serial_manager = None
+        self.__animation_commands = []
         self.__is_running = True
-        self.__main_anim_on = False
+        self.__alarm_on = False
+        self.__custom_animation_on = False
         self.__turn_off = False
 
+        self.__running_lock = threading.Lock()
+        self.__serial_lock = threading.Lock()
+        self.__alarm_lock = threading.Lock()
+        self.__custom_anim_lock = threading.Lock()
+
+    def __connect_to_board(self):
+        board_ratio = AnimationManager.data_provider.get_string_table('ANIMATOR_BOARD_RATIO')
+        board_name = AnimationManager.data_provider.get_board_name('ANIMATOR_BOARD')
+        if board_name and board_ratio:
+            self.__serial_manager = SerialManager.SerialManager(board_name, int(board_ratio))
+            return True
+        else:
+            return False
+
     def run(self):
-        time.sleep(0.5)
-        self.__startup_effect()
-        while True:
-            self.__running_lock.acquire()
-            if bool(self.__is_running) is False:
+        if bool(self.__connect_to_board()) is True:
+            self.__startup_animation()
+            while True:
+                self.__running_lock.acquire()
+                running_cond = self.__is_running
                 self.__running_lock.release()
-                break
-            self.__running_lock.release()
-            self.__main_animation()
-            self.__alarm_effect()
-            time.sleep(1)
+
+                if bool(running_cond) is False:
+                    break
+
+                self.__alarm_lock.acquire()
+                alarm_cond = self.__alarm_on
+                self.__alarm_lock.release()
+
+                self.__custom_anim_lock.acquire()
+                custom_cond = self.__custom_animation_on
+                self.__custom_anim_lock.release()
+
+                if bool(alarm_cond) is True:
+                    self.__alarm_animation()
+                elif bool(custom_cond) is True:
+                    self.__custom_animation()
+                    self.__custom_anim_lock.acquire()
+                    self.__custom_animation_on = False
+                    self.__custom_anim_lock.release()
+                else:
+                    self.__main_animation()
+
+                time.sleep(1)
 
     def stop(self):
         """
@@ -49,110 +86,94 @@ class AnimationManager(threading.Thread):
         self.stop_the_alarm()
         self.__turn_all_off()
 
-    def __light_one_color(self, color_str, intensity, timeout):
-        color_int = 11 #blue by default
-        if color_str == 'red':
-            color_int = 9
-        if color_str == 'green':
-            color_int = 10
-        self.__serial_lock.acquire()
-        aux_string = AnimationManager.data_provider.get_string_table('ANALOG_WRITE')
-        aux_string = aux_string + str(color_int) + '/' + str(intensity)+ '/'
-        self.__serialManager.write(aux_string)
-        self.__serial_lock.release()
-        time.sleep(timeout)
-
-    def __light_mode_color(self, color_str, intensity, timeout):
-        color_int = 5 #green mode by default
-        if color_str == 'yellow':
-            color_int = 4
-        if color_str == 'red':
-            color_int = 3
-        if color_str == 'blue':
-            color_int = 2
-        self.__serial_lock.acquire()
-        aux_string = AnimationManager.data_provider.get_string_table('DIGITAL_WRITE')
-        aux_string = aux_string + str(color_int) + '/' + str(intensity)+ '/'
-        self.__serialManager.write(aux_string)
-        self.__serial_lock.release()
-        time.sleep(timeout)
-
-    def __turn_all_off(self):
-        if bool(self.__turn_off) is False:
-            self.__turn_off = True
-            self.__main_anim_on = False
-            self.__light_one_color('red', 0, 0.1)
-            self.__light_mode_color('blue', 0, 0.1)
-            self.__light_mode_color('red', 0, 0.1)
-            self.__light_one_color('green', 0, 0.1)
-            self.__light_one_color('blue', 0, 0.1)
-            self.__light_mode_color('yellow', 0, 0.1)
-            self.__light_mode_color('green', 0, 0.1)
-
-    def __startup_effect(self):
-        contor = 5
-        while contor > 0:
-            contor = contor - 1
-
-            self.__light_mode_color('red', 1, 0.1)
-            self.__light_one_color('red', 255, 0.1)
-            self.__light_mode_color('blue', 1, 0.1)
-            self.__light_one_color('red', 0, 0.1)
-            self.__light_one_color('green', 255, 0.1)
-            self.__light_mode_color('blue', 0, 0.1)
-            self.__light_mode_color('red', 0, 0.1)
-            self.__light_mode_color('yellow', 1, 0.1)
-            self.__light_one_color('green', 0, 0.1)
-            self.__light_one_color('blue', 255, 0.1)
-            self.__light_mode_color('green', 1, 0.1)
-            self.__light_one_color('blue', 0, 0.1)
-            self.__light_mode_color('yellow', 0, 0.1)
-            self.__light_mode_color('green', 0, 0.1)
-
-    def __alarm_effect(self):
-        while True:
-            self.__thread_lock.acquire()
-            if bool(self.__alarm_on) is False:
-                self.__thread_lock.release()
-                self.__turn_off = False
-                break
-            self.__thread_lock.release()
-            self.__turn_all_off()
-            self.__light_one_color('red', 255, 0.1)
-            self.__light_mode_color('red', 1, 0.1)
-            self.__light_one_color('red', 0, 0.1)
-            self.__light_mode_color('red', 0, 0.1)
-
-    def __main_animation(self):
-        if bool(self.__main_anim_on) is False:
-            self.__main_anim_on = True
-            self.__light_one_color('green', 255, 0.1)
-            self.__light_one_color('blue', 255, 0.1)
-
     def ring_the_alarm(self):
         """
         Ring The Alarm
         """
-        self.__thread_lock.acquire()
+        self.__alarm_lock.acquire()
         self.__alarm_on = True
-        self.__thread_lock.release()
+        self.__alarm_lock.release()
 
     def stop_the_alarm(self):
         """
         Stop the Alarm
         """
-        self.__thread_lock.acquire()
+        self.__alarm_lock.acquire()
         self.__alarm_on = False
-        self.__thread_lock.release()
+        self.__alarm_lock.release()
 
     def turn_on_the_mode(self, mode_color):
         """
         turn on the led for a specific mode
         """
-        self.__light_mode_color(mode_color, 1, 0.1)
+        self.__light_mode_color(mode_color, AnimationManager._ON)
 
     def turn_off_the_mode(self, mode_color):
         """
         turn off the led for a specific mode
         """
-        self.__light_mode_color(mode_color, 0, 0.1)
+        self.__light_mode_color(mode_color, AnimationManager._OFF)
+
+    def __do_animation(self, commands_list):
+        """
+        send the commands list given as argument to serial manager
+        """
+        if commands_list:
+            self.__serial_lock.acquire()
+            self.__serial_manager.set_scanner_commands(commands_list)
+            self.__serial_manager.execute_commands()
+            self.__serial_lock.release()
+
+    def __turn_all_off(self):
+        self.__custom_anim_lock.acquire()
+        self.__custom_animation_on = False
+        self.__custom_anim_lock.release()
+        self.__light_one_rgb_color(AnimationManager._RED_COLOR, 0)
+        self.__light_mode_color(AnimationManager._BLUE_MODE, AnimationManager._OFF)
+        self.__light_mode_color(AnimationManager._RED_MODE, AnimationManager._OFF)
+        self.__light_one_rgb_color(AnimationManager._GREEN_COLOR, 0)
+        self.__light_one_rgb_color(AnimationManager._BLUE_COLOR, 0)
+        self.__light_mode_color(AnimationManager._YELLOW_MODE, AnimationManager._OFF)
+        self.__light_mode_color(AnimationManager._GREEN_MODE, AnimationManager._OFF)
+
+    def __light_one_rgb_color(self, color_type, intensity):
+        command = AnimationManager.data_provider.get_string_table('ANALOG_WRITE')
+        command = command + str(color_type) + '/' + str(intensity)+ '/'
+        self.__do_animation(command)
+
+    def __light_mode_color(self, color_type, status):
+        command = AnimationManager.data_provider.get_string_table('DIGITAL_WRITE')
+        command = command + str(color_type) + '/' + str(status)+ '/'
+        self.__do_animation(command)
+
+    def __alarm_animation(self):
+        self.__turn_all_off()
+        while True:
+            self.__alarm_lock.acquire()
+            alarm_cond = self.__alarm_on
+            self.__alarm_lock.release()
+
+            if bool(alarm_cond) is False:
+                break
+
+            self.__alarm_lock.release()
+            self.__light_one_rgb_color(AnimationManager._RED_COLOR, 255)
+            self.__light_mode_color(AnimationManager._RED_MODE, AnimationManager._ON)
+            self.__light_one_rgb_color(AnimationManager._RED_COLOR, 0)
+            self.__light_mode_color(AnimationManager._RED_MODE, AnimationManager._OFF)
+
+    def __main_animation(self):
+        self.__turn_all_off()
+        self.__light_one_rgb_color(AnimationManager._GREEN_COLOR, 255)
+        self.__light_one_rgb_color(AnimationManager._BLUE_COLOR, 255)
+
+    def __startup_animation(self):
+        self.__turn_all_off()
+        command = []
+        self.__do_animation(command)
+        self.__turn_all_off()
+
+    def __custom_animation(self):
+        self.__turn_all_off()
+        command = []
+        self.__do_animation(command)
