@@ -15,8 +15,9 @@ class AnimationManager(threading.Thread):
 
     def __init__(self):
         threading.Thread.__init__(self)
-        board_ratio = AnimationManager.data_provider.get_string_table('ANIMATION_MANAGER_RATIO')
-        self.__serial_manager = SerialManager.SerialManager('', board_ratio)
+        board_ratio = AnimationManager.data_provider.get_string_table('ANIMATOR_BOARD_RATIO')
+        board_name = AnimationManager.data_provider.get_board_name('ANIMATOR_BOARD')
+        self.__serial_manager = SerialManager.SerialManager(board_name, int(board_ratio))
         self.__alarm_on = False
         self.__thread_lock = threading.Lock()
         self.__running_lock = threading.Lock()

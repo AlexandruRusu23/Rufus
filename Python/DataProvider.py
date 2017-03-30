@@ -23,6 +23,17 @@ class DataProvider(object):
         else:
             return ''
 
+    def get_board_name(self, board_type):
+        """
+        Get the name of a specific arduino board
+        """
+        self.__find_all_devices()
+        if board_type == self.get_string_table('SCANNER_BOARD'):
+            return self._scanner_board_name
+        if board_type == self.get_string_table('ANIMATOR_BOARD'):
+            return self._animator_board_name
+        return ''
+
     def clear_data(self):
         """
         Clear Data
@@ -30,14 +41,12 @@ class DataProvider(object):
         self._scanner_board_name = ''
         self._animator_board_name = ''
 
-    def find_all_devices(self):
+    def __find_all_devices(self):
         """
         Find All Devices
         """
         self.__find_device(self.get_string_table('SCANNER_BOARD'))
         self.__find_device(self.get_string_table('ANIMATOR_BOARD'))
-        print self._scanner_board_name
-        print self._animator_board_name
 
     def __find_device(self, board_type):
         """
