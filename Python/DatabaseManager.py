@@ -9,9 +9,8 @@ class DatabaseManager(object):
     """
     def __init__(self, database_name):
         self._database_name = database_name
-        server = 'localhost'
-        self._db_connection = MySQLdb.connect(server, "root", "internet12", self._database_name)
-        self._cursor = self._db_connection.cursor()
+        self._db_connection = None
+        self._cursor = None
         self.create_table()
 
     def connect(self):
@@ -20,6 +19,7 @@ class DatabaseManager(object):
         """
         server = 'localhost'
         self._db_connection = MySQLdb.connect(server, "root", "internet12", self._database_name)
+        self._cursor = self._db_connection.cursor()
 
     def disconnect(self):
         """
