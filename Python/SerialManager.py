@@ -32,7 +32,7 @@ class SerialManager(threading.Thread):
                 self._running_lock.release()
                 break
             self._running_lock.release()
-            print self.__dict_scanner_data
+            #print self.__dict_scanner_data
         self.__serial_file.close()
 
     def __reader(self):
@@ -68,7 +68,7 @@ class SerialManager(threading.Thread):
         for element in enumerate(self.__list_animator_commands):
             if len(element) > 1:
                 self.__serial_file.write(str(element[1]))
-                time.sleep(50.0 / 1000.0)
+                time.sleep(100.0 / 1000.0)
         self.__list_animator_commands = []
 
     def stop(self):

@@ -45,6 +45,7 @@ class DataProvider(object):
         """
         Find All Devices
         """
+        self.clear_data()
         self.__find_device(self.get_string_table('SCANNER_BOARD'))
         self.__find_device(self.get_string_table('ANIMATOR_BOARD'))
 
@@ -52,7 +53,6 @@ class DataProvider(object):
         """
         Find a specific device
         """
-        self.clear_data()
         path_string = self.get_string_table('PATH_ARDUINO_BOARDS')
         files_to_search_in = os.listdir(path_string)
         file_substr = self.get_string_table('SUBSTR_ANIMATOR_FILE')
@@ -60,4 +60,7 @@ class DataProvider(object):
             file_substr = self.get_string_table('SUBSTR_SCANNER_FILE')
         for current_file in files_to_search_in:
             if file_substr in current_file:
-                self._scanner_board_name = current_file
+                if board_type == self.get_string_table('SCANNER_BOARD'):
+                    self._scanner_board_name = path_string + current_file
+                else:
+                    self._animator_board_name = path_string + current_file

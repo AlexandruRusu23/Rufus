@@ -30,6 +30,7 @@ class AnimationManager(threading.Thread):
         self.__alarm_on = False
         self.__custom_animation_on = False
         self.__turn_off = False
+        self.__main_anim_turned_on = False
 
         self.__running_lock = threading.Lock()
         self.__serial_lock = threading.Lock()
@@ -38,7 +39,8 @@ class AnimationManager(threading.Thread):
 
     def __connect_to_board(self):
         board_ratio = AnimationManager.data_provider.get_string_table('ANIMATOR_BOARD_RATIO')
-        board_name = AnimationManager.data_provider.get_board_name('ANIMATOR_BOARD')
+        anim_board = AnimationManager.data_provider.get_string_table('ANIMATOR_BOARD')
+        board_name = AnimationManager.data_provider.get_board_name(anim_board)
         if board_name and board_ratio:
             self.__serial_manager = SerialManager.SerialManager(board_name, int(board_ratio))
             return True
@@ -54,6 +56,7 @@ class AnimationManager(threading.Thread):
                 self.__running_lock.release()
 
                 if bool(running_cond) is False:
+                    self.__turn_all_off()
                     break
 
                 self.__alarm_lock.acquire()
@@ -66,13 +69,16 @@ class AnimationManager(threading.Thread):
 
                 if bool(alarm_cond) is True:
                     self.__alarm_animation()
+                    self.__main_anim_turned_on = False
                 elif bool(custom_cond) is True:
                     self.__custom_animation()
                     self.__custom_anim_lock.acquire()
                     self.__custom_animation_on = False
                     self.__custom_anim_lock.release()
+                    self.__main_anim_turned_on = False
                 else:
                     self.__main_animation()
+                    self.__main_anim_turned_on = True
 
                 time.sleep(1)
 
@@ -119,6 +125,7 @@ class AnimationManager(threading.Thread):
         send the commands list given as argument to serial manager
         """
         if commands_list:
+            commands_list = [commands_list]
             self.__serial_lock.acquire()
             self.__serial_manager.set_scanner_commands(commands_list)
             self.__serial_manager.execute_commands()
@@ -154,18 +161,20 @@ class AnimationManager(threading.Thread):
             self.__alarm_lock.release()
 
             if bool(alarm_cond) is False:
+                self.__turn_all_off()
                 break
 
-            self.__alarm_lock.release()
-            self.__light_one_rgb_color(AnimationManager._RED_COLOR, 255)
+            self.__light_one_rgb_color(AnimationManager._RED_COLOR, 254)
             self.__light_mode_color(AnimationManager._RED_MODE, AnimationManager._ON)
             self.__light_one_rgb_color(AnimationManager._RED_COLOR, 0)
             self.__light_mode_color(AnimationManager._RED_MODE, AnimationManager._OFF)
 
     def __main_animation(self):
-        self.__turn_all_off()
-        self.__light_one_rgb_color(AnimationManager._GREEN_COLOR, 255)
-        self.__light_one_rgb_color(AnimationManager._BLUE_COLOR, 255)
+        if bool(self.__main_anim_turned_on) is False:
+            self.__light_one_rgb_color(AnimationManager._GREEN_COLOR, 254)
+            self.__light_one_rgb_color(AnimationManager._BLUE_COLOR, 254)
+            #self.__light_one_rgb_color(AnimationManager._GREEN_COLOR, 0)
+            #self.__light_one_rgb_color(AnimationManager._BLUE_COLOR, 0)
 
     def __startup_animation(self):
         self.__turn_all_off()

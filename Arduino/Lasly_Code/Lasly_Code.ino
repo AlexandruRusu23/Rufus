@@ -42,7 +42,7 @@ void setup() {
 
 void loop() {
 
-  if(millis() - controller_timer > 100)
+  if(millis() - controller_timer > 50)
   {
     CommandManager();
     controller_timer = millis();
