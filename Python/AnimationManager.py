@@ -111,7 +111,7 @@ class AnimationManager(threading.Thread):
     def turn_on_the_mode(self, mode_color):
         """
         turn on the led for a specific mode
-        """ 
+        """
         self.__light_mode_color(mode_color, AnimationManager._ON)
 
     def turn_off_the_mode(self, mode_color):
