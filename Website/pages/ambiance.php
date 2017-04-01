@@ -1,3 +1,38 @@
+<?php
+
+$servername = "localhost";
+$username = "root";
+$password = "internet12";
+
+$temperatureValue = 0;
+$humidityValue = 0;
+$gasValue = 0;
+$lightValue = 0;
+$motionValue = 0;
+
+try
+{
+    $conn = new PDO("mysql:host=$servername;dbname=test_create_DB", $username, $password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    $stmt = $conn->prepare("SELECT value FROM HOME_SCANNER_DATABASE_TEMPERATURE WHERE time_collected in (select max(time_collected) from HOME_SCANNER_DATABASE_TEMPERATURE)");
+    $stmt->execute();
+
+    $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    foreach($stmt->fetchAll() as $k=>$v) {
+        $temperatureValue = $v['value'];
+    }
+
+}
+catch(PDOException $e)
+{
+    die($e->getMessage());
+    echo "Connection failed: " . $e->getMessage();
+}
+
+?>
+
+
 <html>
 <head>
   <title>Rufus - Home Smart Assistant</title>
@@ -86,7 +121,14 @@
                                     <i class="fa fa-thermometer-half fa-5x" aria-hidden="true"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="h3"><strong>22.3 &#8451;</strong></div>
+                                    <div class="h3">
+                                      <strong>
+                                      <?php
+                                        print "$temperatureValue";
+                                      ?>
+                                        &#8451;
+                                      </strong>
+                                    </div>
                                     <div>Temperature</div>
                                 </div>
                             </div>
@@ -108,7 +150,13 @@
                                     <i class="fa fa-tint fa-5x" aria-hidden="true"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="h3"><strong>33%</strong></div>
+                                    <div class="h3">
+                                      <strong>
+                                      <?php
+                                        print "$humidityValue";
+                                      ?>
+                                      </strong>
+                                    </div>
                                     <div>Humidity</div>
                                 </div>
                             </div>
@@ -130,7 +178,13 @@
                                     <i class="fa fa-fire fa-5x" aria-hidden="true"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="h3"><strong>Under control</strong></div>
+                                    <div class="h3">
+                                      <strong>
+                                      <?php
+                                        print "$gasValue";
+                                      ?>
+                                      </strong>
+                                    </div>
                                     <div>Smoke and Gas</div>
                                 </div>
                             </div>
@@ -152,7 +206,13 @@
                                     <i class="fa fa-lightbulb-o fa-5x" aria-hidden="true"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="h3"><strong>Dark</strong></div>
+                                    <div class="h3">
+                                      <strong>
+                                      <?php
+                                        print "$lightValue";
+                                      ?>
+                                      </strong>
+                                    </div>
                                     <div>Light</div>
                                 </div>
                             </div>
@@ -174,7 +234,13 @@
                                     <i class="fa fa-eye fa-5x" aria-hidden="true"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="h3"><strong>Clean</strong></div>
+                                    <div class="h3">
+                                      <strong>
+                                      <?php
+                                        print "$motionValue";
+                                      ?>
+                                      </strong>
+                                    </div>
                                     <div>Motion</div>
                                 </div>
                             </div>
