@@ -1,11 +1,15 @@
 """
 store video module
 """
+import os
+import subprocess
 import threading
 import time
 import datetime
 import CameraRecord
 import DataProvider
+
+MP4BOX = ["MP4Box"]
 
 class StoreVideo(threading.Thread):
     """
@@ -48,6 +52,8 @@ class StoreVideo(threading.Thread):
                         break
                     time.sleep(0.5)
 
+                self.__convert_to_mp4(file_name)
+
         #Ctrl C
         except KeyboardInterrupt:
             print "Cancelled"
@@ -72,3 +78,18 @@ class StoreVideo(threading.Thread):
 
     def __get_file_name(self):
         return 'VIDEO' + datetime.datetime.now().strftime('%Y%m%d_%H%M%S') + '.h264'
+
+    def __convert_to_mp4(self, file_name):
+        converted_file_name = os.path.splitext(file_name)[0] + '.mp4'
+        convert_command = MP4BOX
+        convert_command.append("-all")
+        convert_command.append(file_name)
+        convert_command.append(converted_file_name)
+
+        convert_process = subprocess.Popen(convert_command)
+
+        while convert_process.poll() is None:
+            time.sleep(0.5)
+
+        if bool(convert_process.poll()) is True:
+            convert_process.kill()
