@@ -52,7 +52,10 @@ class StoreVideo(threading.Thread):
                         break
                     time.sleep(0.5)
 
-                self.__convert_to_mp4(file_name)
+                convert_thread = \
+                    threading.Thread(target=self.__convert_to_mp4, args=(file_name))
+                convert_thread.start()
+                convert_thread.join()
 
         #Ctrl C
         except KeyboardInterrupt:
@@ -86,6 +89,9 @@ class StoreVideo(threading.Thread):
         convert_command.append(file_name)
         convert_command.append(converted_file_name)
 
+        print convert_command
+
+        """
         convert_process = subprocess.Popen(convert_command)
 
         while convert_process.poll() is None:
@@ -93,3 +99,5 @@ class StoreVideo(threading.Thread):
 
         if bool(convert_process.poll()) is True:
             convert_process.kill()
+        """
+        
