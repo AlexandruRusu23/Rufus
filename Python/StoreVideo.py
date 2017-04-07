@@ -39,9 +39,9 @@ class StoreVideo(threading.Thread):
 
                 file_name = self.__get_file_name()
                 frames_per_second = StoreVideo.data_provider.get_string_table('CAMERA_FRAMERATE')
-                duration = int(StoreVideo.data_provider.get_string_table('CAMERA_DURATION'))
+                duration = StoreVideo.data_provider.get_string_table('CAMERA_DURATION')
                 self.__video_camera = CameraRecord.CameraRecord(\
-                    file_name, duration, False, ["-fps", frames_per_second])
+                    file_name, str(duration), False, ["-fps", str(frames_per_second)])
                 self.__video_camera.start()
                 while self.__video_camera.isAlive():
                     self.__running_lock.acquire()
