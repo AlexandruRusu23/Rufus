@@ -92,5 +92,11 @@ class StoreVideo(threading.Thread):
         while convert_process.poll() is None:
             time.sleep(0.5)
 
+        clear_command = []
+        clear_command.append('rm')
+        clear_command.append(file_name)
 
-        
+        clear_process = subprocess.Popen(clear_command)
+
+        while clear_process.poll() is None:
+            time.sleep(0.5)
