@@ -9,7 +9,7 @@ import datetime
 import CameraRecord
 import DataProvider
 
-MP4BOX = ["MP4Box"]
+MP4BOX = "MP4Box"
 
 class StoreVideo(threading.Thread):
     """
@@ -52,10 +52,7 @@ class StoreVideo(threading.Thread):
                         break
                     time.sleep(0.5)
 
-                convert_thread = \
-                    threading.Thread(target=self.__convert_to_mp4, args=(file_name))
-                convert_thread.start()
-                convert_thread.join()
+                self.__convert_to_mp4(file_name)
 
         #Ctrl C
         except KeyboardInterrupt:
@@ -84,20 +81,16 @@ class StoreVideo(threading.Thread):
 
     def __convert_to_mp4(self, file_name):
         converted_file_name = os.path.splitext(file_name)[0] + '.mp4'
-        convert_command = MP4BOX
-        convert_command.append("-all")
+        convert_command = []
+        convert_command.append(MP4BOX)
+        convert_command.append("-add")
         convert_command.append(file_name)
         convert_command.append(converted_file_name)
 
-        print convert_command
-
-        """
         convert_process = subprocess.Popen(convert_command)
 
         while convert_process.poll() is None:
             time.sleep(0.5)
 
-        if bool(convert_process.poll()) is True:
-            convert_process.kill()
-        """
+
         
