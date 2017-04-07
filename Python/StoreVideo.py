@@ -23,6 +23,7 @@ class StoreVideo(threading.Thread):
         self.__video_camera = None
         self.__is_running = True
         self.__running_lock = threading.Lock()
+        self.__convert_thread = None
 
     def run(self):
         """
@@ -52,7 +53,9 @@ class StoreVideo(threading.Thread):
                         break
                     time.sleep(0.5)
 
-                self.__convert_to_mp4(file_name)
+                self.__convert_thread = \
+                    threading.Thread(target=self.__convert_to_mp4, args=(file_name))
+                self.__convert_thread.start()
 
         #Ctrl C
         except KeyboardInterrupt:
@@ -67,6 +70,7 @@ class StoreVideo(threading.Thread):
             print "Stopping raspivid controller"
             self.__video_camera.stop_controller()
             self.__video_camera.join()
+            self.__convert_thread.join()
 
     def stop(self):
         """
