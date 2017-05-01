@@ -54,7 +54,7 @@ class StoreVideo(threading.Thread):
                     time.sleep(0.5)
 
                 self.__convert_thread = \
-                    threading.Thread(target=self.__convert_to_mp4, args=(file_name))
+                    threading.Thread(target=self.__convert_to_mp4, args=(file_name,))
                 self.__convert_thread.start()
 
         #Ctrl C
