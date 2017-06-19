@@ -13,7 +13,7 @@ class DatabaseManager(object):
         self._cursor = None
         self.create_table()
 
-    def connect(self):
+    def __connect(self):
         """
         Connect to DB
         """
@@ -21,7 +21,7 @@ class DatabaseManager(object):
         self._db_connection = MySQLdb.connect(server, "root", "internet12", self._database_name)
         self._cursor = self._db_connection.cursor()
 
-    def disconnect(self):
+    def __disconnect(self):
         """
         Disconect from DB
         """
@@ -31,7 +31,7 @@ class DatabaseManager(object):
         """
         Create tables needed for the main application
         """
-        self.connect()
+        self.__connect()
         try:
             self._cursor = self._db_connection.cursor()
             sql_command = """CREATE TABLE IF NOT EXISTS HOME_SCANNER_DATABASE_TEMPERATURE
@@ -79,13 +79,13 @@ class DatabaseManager(object):
             self._db_connection.rollback()
             print ex
             return 0
-        self._db_connection.close()
+        self.__disconnect()
 
     def insert_data_in_database(self, values_list, table_name):
         """
         Insert one specific data in DB
         """
-        self.connect()
+        self.__connect()
         try:
             if None in values_list:
                 return
@@ -97,16 +97,16 @@ class DatabaseManager(object):
         except TypeError as terr:
             print terr
             self._db_connection.rollback()
-        self._db_connection.close()
+        self.__disconnect()
 
     def get_data_from_database(self, table_name):
         """
         Return a list with all records store in a specified table
         """
-        self.connect()
+        self.__connect()
         self._cursor = self._db_connection.cursor()
         query_string = 'SELECT * FROM %s' % table_name
         self._cursor.execute(query_string)
         values_list = self._cursor.fetchall()
-        self._db_connection.close()
+        self.__disconnect()
         return values_list

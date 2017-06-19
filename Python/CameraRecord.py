@@ -1,7 +1,6 @@
 """
 camera record module
 """
-import os
 import subprocess
 import threading
 import time

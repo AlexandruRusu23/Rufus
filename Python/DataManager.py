@@ -16,8 +16,11 @@ class DataManager(threading.Thread):
     def __init__(self, database_name):
         threading.Thread.__init__(self)
         self.__serial_manager = None
-        self.__database_manager = DatabaseManager.DatabaseManager(database_name)
+        self.__database_name = database_name
+        self.__database_manager = None
         self.__is_running = False
+
+        self.__thread_timer = 0
 
         self.__running_lock = threading.Lock()
 
@@ -25,8 +28,6 @@ class DataManager(threading.Thread):
         board_ratio = DataManager.data_provider.get_string_table('SCANNER_BOARD_RATIO')
         scanner_board = DataManager.data_provider.get_string_table('SCANNER_BOARD')
         board_name = DataManager.data_provider.get_board_name(scanner_board)
-        #print board_name
-        #print board_ratio
         if board_name and board_ratio:
             self.__serial_manager = SerialManager.SerialManager(board_name, int(board_ratio))
             return True
@@ -35,19 +36,23 @@ class DataManager(threading.Thread):
 
     def run(self):
         # Start the Serial Manager thread for reading
+        self.__database_manager = DatabaseManager.DatabaseManager(self.__database_name)
         if bool(self.__connect_to_board()) is False:
             return
         self.__serial_manager.start()
         self.__running_lock.acquire()
         self.__is_running = True
         self.__running_lock.release()
+        self.__thread_timer = time.time()
         while True:
-            self.__store_in_db()
-            self.__running_lock.acquire()
-            if bool(self.__is_running) is False:
+            if time.time() - self.__thread_timer > 200.0 / 1000.0:
+                self.__store_in_db()
+                self.__running_lock.acquire()
+                condition = self.__is_running
                 self.__running_lock.release()
-                break
-            self.__running_lock.release()
+                if bool(condition) is False:
+                    break
+                self.__thread_timer = time.time()
 
     def stop(self):
         """
@@ -70,6 +75,9 @@ class DataManager(threading.Thread):
     def __store_in_db(self):
         # Store data from Serial into Database
         dict_scanner_data = self.__serial_manager.get_scanner_data()
+
+        if len(dict_scanner_data) <= 0:
+            return
 
         #we will use this data only for surveillance mode
         values_list = [dict_scanner_data.get('distance'), \
@@ -101,6 +109,3 @@ class DataManager(threading.Thread):
             dict_scanner_data.get('time_collected')]
         self.__database_manager.insert_data_in_database(values_list, \
             'HOME_SCANNER_DATABASE_LIGHT')
-
-        #print "[DataManager] Incarc"
-        time.sleep(0.5)
