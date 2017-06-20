@@ -11,28 +11,35 @@ class SerialManager(threading.Thread):
     """
     Class implemented to manipulate the Microcontroller's Serial
     """
-    def __init__(self, serialName, serialRatio):
+    def __init__(self, serial_name, serial_ratio):
         threading.Thread.__init__(self)
-        self._running_lock = threading.Lock()
-        self._scanner_dict_lock = threading.Lock()
-        self.__serial_file = serial.Serial(serialName, serialRatio)
-        self.__list_animator_commands = []
+        self.__running_lock = threading.Lock()
+        self.__scanner_dict_lock = threading.Lock()
+        self.__serial_name = serial_name
+        self.__serial_ratio = serial_ratio
+        self.__serial_file = None
+        self.__commands_list = []
         self.__dict_scanner_data = {}
-        self._is_running = False
+        self.__is_running = False
+        self.__thread_timer = 0
 
     def run(self):
-        self._running_lock.acquire()
-        self._is_running = True
-        self._running_lock.release()
+        self.__running_lock.acquire()
+        self.__is_running = True
+        self.__running_lock.release()
+        self.__serial_file = serial.Serial(self.__serial_name, self.__serial_ratio)
+        self.__thread_timer = time.time()
         while True:
-            self.__reader()
+            if time.time() - self.__thread_timer > 100.0 / 1000.0:
+                self.__reader()
 
-            self._running_lock.acquire()
-            if bool(self._is_running) is False:
-                self._running_lock.release()
-                break
-            self._running_lock.release()
-            #print self.__dict_scanner_data
+                self.__running_lock.acquire()
+                condition = self.__is_running
+                self.__running_lock.release()
+                if bool(condition) is False:
+                    break
+                self.__thread_timer = time.time()
+
         self.__serial_file.close()
 
     def __reader(self):
@@ -49,9 +56,9 @@ class SerialManager(threading.Thread):
                     line = self.__serial_file.readline()
             timest = time.time()
             timestamp = datetime.datetime.fromtimestamp(timest).strftime('%Y-%m-%d %H:%M:%S')
-            self._scanner_dict_lock.acquire()
+            self.__scanner_dict_lock.acquire()
             self.__dict_scanner_data['time_collected'] = timestamp
-            self._scanner_dict_lock.release()
+            self.__scanner_dict_lock.release()
 
     def __store_in_dictionary(self, line_to_store):
         """
@@ -65,38 +72,38 @@ class SerialManager(threading.Thread):
         """
         Method created to write on Microcontroller's Serial
         """
-        for element in enumerate(self.__list_animator_commands):
+        for element in enumerate(self.__commands_list):
             if len(element) > 1:
                 self.__serial_file.write(str(element[1]))
                 time.sleep(100.0 / 1000.0)
-        self.__list_animator_commands = []
+        self.__commands_list = []
 
     def stop(self):
         """
         stop the Serial Manager
         """
-        self._running_lock.acquire()
-        self._is_running = False
-        self._running_lock.release()
+        self.__running_lock.acquire()
+        self.__is_running = False
+        self.__running_lock.release()
 
     def get_scanner_data(self):
         """
         Get the data from Serial from a dictionary which is returned by the function
         """
-        self._scanner_dict_lock.acquire()
+        self.__scanner_dict_lock.acquire()
         output = self.__dict_scanner_data
         self.__dict_scanner_data = {}
-        self._scanner_dict_lock.release()
+        self.__scanner_dict_lock.release()
         return output
 
-    def set_scanner_commands(self, list_scanner_commands):
+    def set_scanner_commands(self, commands_list):
         """
         send a list of commands for SerialManager to be send to Microcontroller
         """
-        self.__list_animator_commands = list_scanner_commands
+        self.__commands_list = commands_list
 
     def execute_commands(self):
         """
-        Send to Microcontroller's Serial the commands stored in __list_scanner_commands
+        Send to Microcontroller's Serial the commands stored in __commands_list
         """
         self.__writer()

@@ -10,13 +10,12 @@ import CameraRecord
 import DataProvider
 
 MP4BOX = "MP4Box"
+DATA_PROVIDER = DataProvider.DataProvider()
 
 class StoreVideo(threading.Thread):
     """
     store
     """
-
-    data_provider = DataProvider.DataProvider() #static
 
     def __init__(self):
         threading.Thread.__init__(self)
@@ -39,10 +38,10 @@ class StoreVideo(threading.Thread):
                     break
 
                 file_name = self.__get_file_name()
-                frames_per_second = StoreVideo.data_provider.get_string_table('CAMERA_FRAMERATE')
-                duration = StoreVideo.data_provider.get_string_table('CAMERA_DURATION')
+                frames_per_second = DATA_PROVIDER.get_string_table(DATA_PROVIDER.CAMERA_FRAMERATE)
+                duration = DATA_PROVIDER.get_string_table(DATA_PROVIDER.CAMERA_DURATION)
                 self.__video_camera = CameraRecord.CameraRecord(\
-                    file_name, str(duration), False, ["-fps", str(frames_per_second)])
+                    file_name, False, str(duration), ["-fps", str(frames_per_second)])
                 self.__video_camera.start()
                 while self.__video_camera.isAlive():
                     self.__running_lock.acquire()

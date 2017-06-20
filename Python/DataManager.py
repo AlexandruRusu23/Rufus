@@ -7,11 +7,12 @@ import SerialManager
 import DatabaseManager
 import DataProvider
 
+DATA_PROVIDER = DataProvider.DataProvider()
+
 class DataManager(threading.Thread):
     """
     Data Manager class
     """
-    data_provider = DataProvider.DataProvider() #static
 
     def __init__(self, database_name):
         threading.Thread.__init__(self)
@@ -19,15 +20,13 @@ class DataManager(threading.Thread):
         self.__database_name = database_name
         self.__database_manager = None
         self.__is_running = False
-
+        self.__running_lock = threading.Lock()
         self.__thread_timer = 0
 
-        self.__running_lock = threading.Lock()
-
     def __connect_to_board(self):
-        board_ratio = DataManager.data_provider.get_string_table('SCANNER_BOARD_RATIO')
-        scanner_board = DataManager.data_provider.get_string_table('SCANNER_BOARD')
-        board_name = DataManager.data_provider.get_board_name(scanner_board)
+        board_ratio = DATA_PROVIDER.get_string_table(DATA_PROVIDER.SCANNER_BOARD_RATIO)
+        scanner_board = DATA_PROVIDER.get_string_table(DATA_PROVIDER.SCANNER_BOARD)
+        board_name = DATA_PROVIDER.get_board_name(scanner_board)
         if board_name and board_ratio:
             self.__serial_manager = SerialManager.SerialManager(board_name, int(board_ratio))
             return True
