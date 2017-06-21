@@ -16,7 +16,7 @@ class CameraRecord(threading.Thread):
 
     data_provider = DataProvider.DataProvider() #static
 
-    def __init__(self, filePath, preview, timeout=10, other_options=None):
+    def __init__(self, filePath, preview, timeout=5000, other_options=None):
         threading.Thread.__init__(self)
 
         #setup the raspivid cmd

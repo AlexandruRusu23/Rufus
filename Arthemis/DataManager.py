@@ -23,16 +23,6 @@ class DataManager(threading.Thread):
         self.__running_lock = threading.Lock()
         self.__thread_timer = 0
 
-    def __connect_to_board(self):
-        board_ratio = DATA_PROVIDER.get_string_table(DATA_PROVIDER.SCANNER_BOARD_RATIO)
-        scanner_board = DATA_PROVIDER.get_string_table(DATA_PROVIDER.SCANNER_BOARD)
-        board_name = DATA_PROVIDER.get_board_name(scanner_board)
-        if board_name and board_ratio:
-            self.__serial_manager = SerialManager.SerialManager(board_name, int(board_ratio))
-            return True
-        else:
-            return False
-
     def run(self):
         # Start the Serial Manager thread for reading
         self.__database_manager = DatabaseManager.DatabaseManager(self.__database_name)
@@ -78,33 +68,24 @@ class DataManager(threading.Thread):
         if len(dict_scanner_data) <= 0:
             return
 
-        #we will use this data only for surveillance mode
-        values_list = [dict_scanner_data.get('distance'), \
-            dict_scanner_data.get('time_collected')]
-        self.__database_manager.insert_data_in_database(values_list, \
-            'HOME_SCANNER_DATABASE_DISTANCE')
+        values_list = dict_scanner_data.get('distance')
 
-        values_list = [dict_scanner_data.get('temperature'), \
-            dict_scanner_data.get('time_collected')]
+        values_list = dict_scanner_data.get('temperature')
         self.__database_manager.insert_data_in_database(values_list, \
             'HOME_SCANNER_DATABASE_TEMPERATURE')
 
-        values_list = [dict_scanner_data.get('motion'), \
-            dict_scanner_data.get('time_collected')]
+        values_list = dict_scanner_data.get('motion')
         self.__database_manager.insert_data_in_database(values_list, \
             'HOME_SCANNER_DATABASE_MOTION')
 
-        values_list = [dict_scanner_data.get('humidity'), \
-            dict_scanner_data.get('time_collected')]
+        values_list = dict_scanner_data.get('humidity')
         self.__database_manager.insert_data_in_database(values_list, \
             'HOME_SCANNER_DATABASE_HUMIDITY')
 
-        values_list = [dict_scanner_data.get('gas'), \
-            dict_scanner_data.get('time_collected')]
+        values_list = dict_scanner_data.get('gas')
         self.__database_manager.insert_data_in_database(values_list, \
             'HOME_SCANNER_DATABASE_GAS_RECORD')
 
-        values_list = [dict_scanner_data.get('light'), \
-            dict_scanner_data.get('time_collected')]
+        values_list = dict_scanner_data.get('light')
         self.__database_manager.insert_data_in_database(values_list, \
             'HOME_SCANNER_DATABASE_LIGHT')

@@ -1,11 +1,17 @@
 """
 Serial Manager Module
+This module provides a class that is capable to connect to
+Arduino Board and got implemented some functions to get data,
+send commands and so on.
 """
 import threading
 import time
 import datetime
 import re
 import serial
+import ResourceProvider
+
+RESOURCE_PROVIDER = ResourceProvider.ResourceProvider()
 
 class SerialManager(threading.Thread):
     """
@@ -13,15 +19,31 @@ class SerialManager(threading.Thread):
     """
     def __init__(self, serial_name, serial_ratio):
         threading.Thread.__init__(self)
-        self.__running_lock = threading.Lock()
-        self.__scanner_dict_lock = threading.Lock()
+
+        # initialization vars
         self.__serial_name = serial_name
         self.__serial_ratio = serial_ratio
         self.__serial_file = None
-        self.__commands_list = []
-        self.__dict_scanner_data = {}
+
+        # thread running vars
         self.__is_running = False
+        self.__running_lock = threading.Lock()
+
+        # data collectors
+        self.__dict_scanner_data = {}
+        self.__scanner_dict_lock = threading.Lock()
+
+        # commands store
+        self.__commands_list = []
+
+        # thread check timer
         self.__thread_timer = 0
+
+        # data messages delimiters
+        self.__data_begin_msg = \
+            RESOURCE_PROVIDER.get_string_table(RESOURCE_PROVIDER.SCANNER_DATA_BEGIN)
+        self.__data_end_msg = \
+            RESOURCE_PROVIDER.get_string_table(RESOURCE_PROVIDER.SCANNER_DATA_END)
 
     def run(self):
         self.__running_lock.acquire()
@@ -32,14 +54,12 @@ class SerialManager(threading.Thread):
         while True:
             if time.time() - self.__thread_timer > 100.0 / 1000.0:
                 self.__reader()
-
                 self.__running_lock.acquire()
                 condition = self.__is_running
                 self.__running_lock.release()
                 if bool(condition) is False:
                     break
                 self.__thread_timer = time.time()
-
         self.__serial_file.close()
 
     def __reader(self):
@@ -48,17 +68,12 @@ class SerialManager(threading.Thread):
         """
         line = self.__serial_file.readline()
         if line:
-            if 'scanner_data' in line:
+            if self.__data_begin_msg in line:
                 line = self.__serial_file.readline()
-                while 'end_scanner_data' not in line:
+                while self.__data_end_msg not in line:
                     if line:
                         self.__store_in_dictionary(line)
                     line = self.__serial_file.readline()
-            timest = time.time()
-            timestamp = datetime.datetime.fromtimestamp(timest).strftime('%Y-%m-%d %H:%M:%S')
-            self.__scanner_dict_lock.acquire()
-            self.__dict_scanner_data['time_collected'] = timestamp
-            self.__scanner_dict_lock.release()
 
     def __store_in_dictionary(self, line_to_store):
         """
@@ -66,7 +81,10 @@ class SerialManager(threading.Thread):
         """
         line_to_store_tokenized = re.findall(r"[\w.]+", line_to_store)
         if len(line_to_store_tokenized) > 1:
-            self.__dict_scanner_data[line_to_store_tokenized[0]] = line_to_store_tokenized[1]
+            timest = time.time()
+            timestamp = datetime.datetime.fromtimestamp(timest).strftime('%Y-%m-%d %H:%M:%S')
+            self.__dict_scanner_data[line_to_store_tokenized[0]] = \
+                [line_to_store_tokenized[1], timestamp]
 
     def __writer(self):
         """
