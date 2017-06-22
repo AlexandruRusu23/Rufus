@@ -106,7 +106,7 @@ class StoreVideo(threading.Thread):
                 self.__thread_timer = time.time()
                 while self.__video_camera.isAlive():
                     if time.time() - self.__thread_timer > 300.0 / 1000.0:
-                        if getattr(current_thread, 'is_running', True):
+                        if getattr(current_thread, 'is_running', False):
                             break
                         self.__thread_timer = time.time()
 
