@@ -39,7 +39,7 @@ class ScannerDataProvider(threading.Thread):
         """
         thread-run method
         """
-        if bool(self.__connect_to_board) is False:
+        if bool(self.__connect_to_board()) is False:
             print '[ScannerDataProvider] Cant connect to SerialManager'
             return
 
@@ -54,11 +54,23 @@ class ScannerDataProvider(threading.Thread):
                 self.__is_running_lock.release()
                 if bool(condition) is False:
                     break
+
                 self.__thread_timer = time.time()
 
             if time.time() - self.__data_timer > 100.0/1000.0:
                 self.__store_data(self.__serial_manager.get_scanner_data())
                 self.__data_timer = time.time()
+
+        self.__serial_manager.stop()
+        self.__serial_manager.join()
+
+    def stop(self):
+        """
+        stop the main thread
+        """
+        self.__is_running_lock.acquire()
+        self.__is_running = False
+        self.__is_running_lock.release()
 
     def __store_data(self, scanner_data_dict):
         try:
@@ -73,6 +85,6 @@ class ScannerDataProvider(threading.Thread):
         try:
             output = self.__scanner_data_queue.get(False)
         except Queue.Empty:
-            return ''
+            return {}
 
         return output

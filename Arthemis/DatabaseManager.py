@@ -11,7 +11,7 @@ class DatabaseManager(object):
         self._database_name = database_name
         self._db_connection = None
         self._cursor = None
-        self.create_table()
+        self.create_tables()
 
     def __connect(self):
         """
@@ -27,7 +27,7 @@ class DatabaseManager(object):
         """
         self._db_connection.close()
 
-    def create_table(self):
+    def create_tables(self):
         """
         Create tables needed for the main application
         """
