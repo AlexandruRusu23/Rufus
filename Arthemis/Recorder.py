@@ -1,22 +1,20 @@
 """
-camera record module
+Recorder module
 """
 import subprocess
 import threading
 import time
-import DataProvider
+import ResourceProvider
+
+RESOURCE_PROVIDER = ResourceProvider.ResourceProvider() #static
 
 RASPIVIDCMD = ["raspivid"]
-TIMETOWAITFORABORT = 0.5
 
-class CameraRecord(threading.Thread):
+class Recorder(threading.Thread):
     """
     Camera recorder using raspivid
     """
-
-    data_provider = DataProvider.DataProvider() #static
-
-    def __init__(self, filePath, preview, timeout=5000, other_options=None):
+    def __init__(self, filePath, preview, timeout=10000, other_options=None):
         threading.Thread.__init__(self)
 
         #setup the raspivid cmd
@@ -34,34 +32,37 @@ class CameraRecord(threading.Thread):
         if other_options != None:
             self.__raspividcmd = self.__raspividcmd + other_options
 
-        #set state to not running
         self.__is_running = False
-        self.__running_lock = threading.Lock()
+        self.__is_running_lock = threading.Lock()
+        self.__thread_timer = 0
 
     def run(self):
         #run raspivid
         raspivid = subprocess.Popen(self.__raspividcmd)
 
         #loop until its set to stopped or it stops
+        self.__is_running_lock().acquire()
         self.__is_running = True
+        self.__is_running_lock.release()
+        self.__thread_timer = time.time()
         while raspivid.poll() is None:
-            self.__running_lock.acquire()
-            running_cond = self.__is_running
-            self.__running_lock.release()
-
-            if bool(running_cond) is False:
-                break
-            time.sleep(TIMETOWAITFORABORT)
+            if time.time() - self.__thread_timer > 300.0 / 1000.0:
+                self.__is_running_lock.acquire()
+                condition = self.__is_running
+                self.__is_running_lock.release()
+                if bool(condition) is False:
+                    break
+                self.__thread_timer = time.time()
         self.__is_running = False
 
         #kill raspivid if still running
         if bool(raspivid.poll()) is True:
             raspivid.kill()
 
-    def stop_controller(self):
+    def stop(self):
         """
-        stop
+        stop the thread and stop recording the current file
         """
-        self.__running_lock.acquire()
+        self.__is_running_lock.acquire()
         self.__is_running = False
-        self.__running_lock.release()
+        self.__is_running_lock.release()

@@ -3,6 +3,7 @@ Data Manager module
 """
 import threading
 import time
+import Queue
 import ScannerDataProvider
 import DatabaseManager
 import ResourceProvider
@@ -14,15 +15,17 @@ class DataManager(threading.Thread):
     Data Manager class
     """
 
-    def __init__(self, database_name):
+    def __init__(self):
         threading.Thread.__init__(self)
         self.__scanner_data_provider = None
-        self.__database_name = database_name
+        self.__database_name = RESOURCE_PROVIDER.get_string_table(RESOURCE_PROVIDER.DATABASE_NAME)
         self.__database_manager = None
         self.__is_running = False
         self.__running_lock = threading.Lock()
         self.__thread_timer = 0
         self.__data_timer = 0
+
+        self.__scanner_data_queue = Queue.Queue(20)
 
     def run(self):
         self.__database_manager = DatabaseManager.DatabaseManager(self.__database_name)
@@ -43,7 +46,9 @@ class DataManager(threading.Thread):
                 self.__thread_timer = time.time()
 
             if time.time() - self.__data_timer > 100.0 / 1000.0:
-                self.__store_in_db()
+                dict_scanner_data = self.__scanner_data_provider.get_scanner_data()
+                self.__store_in_db(dict_scanner_data)
+                self.__store_in_queue(dict_scanner_data)
                 self.__data_timer = time.time()
 
         # Wait for the threads to stop
@@ -58,9 +63,10 @@ class DataManager(threading.Thread):
         self.__is_running = False
         self.__running_lock.release()
 
-    def __store_in_db(self):
-        # Store data from Scanner into Database
-        dict_scanner_data = self.__scanner_data_provider.get_scanner_data()
+    def __store_in_db(self, dict_scanner_data):
+        """
+        Store data from a dict which contains Scanner data into Database
+        """
 
         if len(dict_scanner_data) > 0:
             # distance value
@@ -90,3 +96,22 @@ class DataManager(threading.Thread):
             if values_list:
                 self.__database_manager.insert_data_in_database(values_list, \
                     'HOME_SCANNER_DATABASE_LIGHT')
+
+    def __store_in_queue(self, dict_scanner_data):
+        if len(dict_scanner_data) > 0:
+            try:
+                self.__scanner_data_queue.put(dict_scanner_data, False)
+            except Queue.Full:
+                pass
+
+    def get_scanner_data(self):
+        """
+        get data collected from Home Scanner
+        """
+        try:
+            output = self.__scanner_data_queue.get(False)
+        except Queue.Empty:
+            return {}
+
+        self.__scanner_data_queue.task_done()
+        return output

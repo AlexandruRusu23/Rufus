@@ -87,4 +87,5 @@ class ScannerDataProvider(threading.Thread):
         except Queue.Empty:
             return {}
 
+        self.__scanner_data_queue.task_done()
         return output

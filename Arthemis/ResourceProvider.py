@@ -10,6 +10,8 @@ class ResourceProvider(object):
     """
     Data Provider Class
     """
+    DATABASE_NAME = 'DATABASE_NAME'
+
     SCANNER_BOARD_RATIO = 'SCANNER_BOARD_RATIO'
     SCANNER_BOARD = 'SCANNER_BOARD'
     ANIMATOR_BOARD = 'ANIMATOR_BOARD'

@@ -75,6 +75,15 @@ class DatabaseManager(object):
                 TIME_COLLECTED   DATETIME       NOT NULL,
                 PRIMARY KEY (ID));"""
             self._cursor.execute(sql_command)
+            sql_command = """CREATE TABLE IF NOT EXISTS HOME_SCANNER_DATABASE_DISTANCE
+                (ID                         INT             NOT NULL AUTO_INCREMENT,
+                TEMPERATURE_THRESHOLD       INT             NOT NULL,
+                HUMIDITY_THRESHOLD          INT             NOT NULL,
+                FACE_DETECTION              INT             NOT NULL,
+                MOTION_DETECTION            INT             NOT NULL,
+                HUMAN_DETECTION             INT             NOT NULL,
+                PRIMARY KEY (ID));"""
+            self._cursor.execute(sql_command)
         except MemoryError as ex:
             self._db_connection.rollback()
             print ex
