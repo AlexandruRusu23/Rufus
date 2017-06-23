@@ -77,9 +77,9 @@ class VideoManager(threading.Thread):
         self.__is_running = False
         self.__is_running_lock.release()
 
-    def pause_recording(self, enabled):
+    def enable_recording(self, enabled):
         """
-        pause or restart recording giving a boolean as argument
+        enable or disable recording giving a boolean as argument
         """
         self.__record_video_enabled_lock.acquire()
         self.__record_video_enabled = enabled
@@ -113,15 +113,13 @@ class VideoManager(threading.Thread):
                 self.__video_camera.stop()
                 self.__video_camera.join()
 
-                while True:
-                    done = 0
+                while getattr(current_thread, 'is_running', True):
                     try:
                         self.__raw_files_queue.put(file_name, False)
                     except Queue.Full:
-                        done = done + 1
-                    if done == 0:
-                        break
-                    time.sleep(0.1)
+                        time.sleep(0.1)
+                        continue
+                    break
 
     def __get_file_name(self):
         return 'VIDEO' + datetime.datetime.now().strftime('%Y%m%d_%H%M%S') + '.h264'
@@ -147,15 +145,13 @@ class VideoManager(threading.Thread):
             while convert_process.poll() is None:
                 time.sleep(0.1)
 
-            while True:
-                done = 0
+            while getattr(current_thread, 'is_running', True):
                 try:
                     self.__converted_files_queue.put(converted_file_name, False)
                 except Queue.Full:
-                    done = done + 1
-                if done == 0:
-                    break
-                time.sleep(0.1)
+                    time.sleep(0.1)
+                    continue
+                break
 
             clear_command = []
             clear_command.append('rm')
@@ -167,3 +163,34 @@ class VideoManager(threading.Thread):
                 time.sleep(0.1)
 
             self.__raw_files_queue.task_done()
+
+    def __get_mp4_file_name(self):
+        """
+        get mp4 file name from queue
+        """
+        try:
+            output = self.__converted_files_queue.get(False)
+        except Queue.Empty:
+            return ''
+
+        self.__converted_files_queue.task_done()
+        return output
+
+    def receive_mp4_files(self, mp4_files_queue):
+        """
+        populate an extern queue with the name of the mp4 files
+        """
+        current_thread = threading.currentThread()
+        __thread_timer = time.time()
+        while getattr(current_thread, 'is_running', True):
+            if time.time() - __thread_timer > 1000.0 / 1000.0:
+                output = self.__get_mp4_file_name()
+                if len(output) > 0:
+                    while getattr(current_thread, 'is_running', True):
+                        try:
+                            mp4_files_queue.put(output, False)
+                        except Queue.Full:
+                            time.sleep(0.1)
+                            continue
+                        break
+                __thread_timer = time.time()

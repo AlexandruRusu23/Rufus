@@ -2,15 +2,18 @@
 Database Manager Module
 """
 import MySQLdb
+import ResourceProvider
+
+RESOURCE_PROVIDER = ResourceProvider.ResourceProvider()
 
 class DatabaseManager(object):
     """
     Database Manager Class
     """
-    def __init__(self, database_name):
-        self._database_name = database_name
-        self._db_connection = None
-        self._cursor = None
+    def __init__(self):
+        self.__database_name = RESOURCE_PROVIDER.get_string_table(RESOURCE_PROVIDER.DATABASE_NAME)
+        self.__db_connection = None
+        self.__cursor = None
         self.create_tables()
 
     def __connect(self):
@@ -18,14 +21,14 @@ class DatabaseManager(object):
         Connect to DB
         """
         server = 'localhost'
-        self._db_connection = MySQLdb.connect(server, "root", "internet12", self._database_name)
-        self._cursor = self._db_connection.cursor()
+        self.__db_connection = MySQLdb.connect(server, "root", "internet12", self.__database_name)
+        self.__cursor = self.__db_connection.cursor()
 
     def __disconnect(self):
         """
         Disconect from DB
         """
-        self._db_connection.close()
+        self.__db_connection.close()
 
     def create_tables(self):
         """
@@ -33,48 +36,48 @@ class DatabaseManager(object):
         """
         self.__connect()
         try:
-            self._cursor = self._db_connection.cursor()
+            self.__cursor = self.__db_connection.cursor()
             sql_command = """CREATE TABLE IF NOT EXISTS HOME_SCANNER_DATABASE_TEMPERATURE
                 (ID              INT            NOT NULL AUTO_INCREMENT,
                 VALUE            DOUBLE         NOT NULL,
                 TIME_COLLECTED   DATETIME       NOT NULL,
                 PRIMARY KEY (ID));"""
-            self._cursor.execute(sql_command)
+            self.__cursor.execute(sql_command)
 
             sql_command = """CREATE TABLE IF NOT EXISTS HOME_SCANNER_DATABASE_GAS_RECORD
                 (ID              INT            NOT NULL AUTO_INCREMENT,
                 VALUE            DOUBLE         NOT NULL,
                 TIME_COLLECTED   DATETIME       NOT NULL,
                 PRIMARY KEY (ID));"""
-            self._cursor.execute(sql_command)
+            self.__cursor.execute(sql_command)
 
             sql_command = """CREATE TABLE IF NOT EXISTS HOME_SCANNER_DATABASE_LIGHT
                 (ID              INT            NOT NULL AUTO_INCREMENT,
                 VALUE            INT            NOT NULL,
                 TIME_COLLECTED   DATETIME       NOT NULL,
                 PRIMARY KEY (ID));"""
-            self._cursor.execute(sql_command)
+            self.__cursor.execute(sql_command)
 
             sql_command = """CREATE TABLE IF NOT EXISTS HOME_SCANNER_DATABASE_HUMIDITY
                 (ID              INT            NOT NULL AUTO_INCREMENT,
                 VALUE            DOUBLE         NOT NULL,
                 TIME_COLLECTED   DATETIME       NOT NULL,
                 PRIMARY KEY (ID));"""
-            self._cursor.execute(sql_command)
+            self.__cursor.execute(sql_command)
 
             sql_command = """CREATE TABLE IF NOT EXISTS HOME_SCANNER_DATABASE_MOTION
                 (ID              INT            NOT NULL AUTO_INCREMENT,
                 VALUE            INT            NOT NULL,
                 TIME_COLLECTED   DATETIME       NOT NULL,
                 PRIMARY KEY (ID));"""
-            self._cursor.execute(sql_command)
+            self.__cursor.execute(sql_command)
 
             sql_command = """CREATE TABLE IF NOT EXISTS HOME_SCANNER_DATABASE_DISTANCE
                 (ID              INT            NOT NULL AUTO_INCREMENT,
                 VALUE            DOUBLE         NOT NULL,
                 TIME_COLLECTED   DATETIME       NOT NULL,
                 PRIMARY KEY (ID));"""
-            self._cursor.execute(sql_command)
+            self.__cursor.execute(sql_command)
             sql_command = """CREATE TABLE IF NOT EXISTS HOME_SCANNER_DATABASE_DISTANCE
                 (ID                         INT             NOT NULL AUTO_INCREMENT,
                 TEMPERATURE_THRESHOLD       INT             NOT NULL,
@@ -83,9 +86,9 @@ class DatabaseManager(object):
                 MOTION_DETECTION            INT             NOT NULL,
                 HUMAN_DETECTION             INT             NOT NULL,
                 PRIMARY KEY (ID));"""
-            self._cursor.execute(sql_command)
+            self.__cursor.execute(sql_command)
         except MemoryError as ex:
-            self._db_connection.rollback()
+            self.__db_connection.rollback()
             print ex
             return 0
         self.__disconnect()
@@ -101,11 +104,11 @@ class DatabaseManager(object):
             var_string = ', '.join(['%s'] * len(values_list))
             insert_string = "INSERT INTO %s (value, time_collected) VALUES (%s);"
             query_string = insert_string % (table_name, var_string)
-            self._cursor.execute(query_string, values_list)
-            self._db_connection.commit()
+            self.__cursor.execute(query_string, values_list)
+            self.__db_connection.commit()
         except TypeError as terr:
             print terr
-            self._db_connection.rollback()
+            self.__db_connection.rollback()
         self.__disconnect()
 
     def get_data_from_database(self, table_name):
@@ -113,9 +116,9 @@ class DatabaseManager(object):
         Return a list with all records store in a specified table
         """
         self.__connect()
-        self._cursor = self._db_connection.cursor()
+        self.__cursor = self.__db_connection.cursor()
         query_string = 'SELECT * FROM %s' % table_name
-        self._cursor.execute(query_string)
-        values_list = self._cursor.fetchall()
+        self.__cursor.execute(query_string)
+        values_list = self.__cursor.fetchall()
         self.__disconnect()
         return values_list

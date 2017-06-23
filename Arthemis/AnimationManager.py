@@ -4,23 +4,23 @@ Animation Manager module
 import threading
 import time
 import SerialManager
-import DataProvider
+import ResourceProvider
+
+RESOURCE_PROVIDER = ResourceProvider.ResourceProvider()
 
 class AnimationManager(threading.Thread):
     """
     Animation Manager class
     """
-    data_provider = DataProvider.DataProvider() #static
-
     _ON = 1
     _OFF = 0
-    _RED_COLOR = data_provider.get_string_table('RED_COLOR_PIN')
-    _GREEN_COLOR = data_provider.get_string_table('GREEN_COLOR_PIN')
-    _BLUE_COLOR = data_provider.get_string_table('BLUE_COLOR_PIN')
-    _BLUE_MODE = data_provider.get_string_table('BLUE_MODE_PIN')
-    _RED_MODE = data_provider.get_string_table('RED_MODE_PIN')
-    _YELLOW_MODE = data_provider.get_string_table('YELLOW_MODE_PIN')
-    _GREEN_MODE = data_provider.get_string_table('GREEN_MODE_PIN')
+    _RED_COLOR = RESOURCE_PROVIDER.get_string_table('RED_COLOR_PIN')
+    _GREEN_COLOR = RESOURCE_PROVIDER.get_string_table('GREEN_COLOR_PIN')
+    _BLUE_COLOR = RESOURCE_PROVIDER.get_string_table('BLUE_COLOR_PIN')
+    _BLUE_MODE = RESOURCE_PROVIDER.get_string_table('BLUE_MODE_PIN')
+    _RED_MODE = RESOURCE_PROVIDER.get_string_table('RED_MODE_PIN')
+    _YELLOW_MODE = RESOURCE_PROVIDER.get_string_table('YELLOW_MODE_PIN')
+    _GREEN_MODE = RESOURCE_PROVIDER.get_string_table('GREEN_MODE_PIN')
 
     def __init__(self):
         threading.Thread.__init__(self)
@@ -38,9 +38,9 @@ class AnimationManager(threading.Thread):
         self.__custom_anim_lock = threading.Lock()
 
     def __connect_to_board(self):
-        board_ratio = AnimationManager.data_provider.get_string_table('ANIMATOR_BOARD_RATIO')
-        anim_board = AnimationManager.data_provider.get_string_table('ANIMATOR_BOARD')
-        board_name = AnimationManager.data_provider.get_board_name(anim_board)
+        board_ratio = RESOURCE_PROVIDER.get_string_table('ANIMATOR_BOARD_RATIO')
+        anim_board = RESOURCE_PROVIDER.get_string_table('ANIMATOR_BOARD')
+        board_name = RESOURCE_PROVIDER.get_board_name(anim_board)
         if board_name and board_ratio:
             self.__serial_manager = SerialManager.SerialManager(board_name, int(board_ratio))
             return True
@@ -144,12 +144,12 @@ class AnimationManager(threading.Thread):
         self.__light_mode_color(AnimationManager._GREEN_MODE, AnimationManager._OFF)
 
     def __light_one_rgb_color(self, color_type, intensity):
-        command = AnimationManager.data_provider.get_string_table('ANALOG_WRITE')
+        command = RESOURCE_PROVIDER.get_string_table('ANALOG_WRITE')
         command = command + str(color_type) + '/' + str(intensity)+ '/'
         self.__do_animation(command)
 
     def __light_mode_color(self, color_type, status):
-        command = AnimationManager.data_provider.get_string_table('DIGITAL_WRITE')
+        command = RESOURCE_PROVIDER.get_string_table('DIGITAL_WRITE')
         command = command + str(color_type) + '/' + str(status)+ '/'
         self.__do_animation(command)
 

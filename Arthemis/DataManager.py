@@ -18,7 +18,6 @@ class DataManager(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.__scanner_data_provider = None
-        self.__database_name = RESOURCE_PROVIDER.get_string_table(RESOURCE_PROVIDER.DATABASE_NAME)
         self.__database_manager = None
         self.__is_running = False
         self.__running_lock = threading.Lock()
@@ -28,7 +27,7 @@ class DataManager(threading.Thread):
         self.__scanner_data_queue = Queue.Queue(20)
 
     def run(self):
-        self.__database_manager = DatabaseManager.DatabaseManager(self.__database_name)
+        self.__database_manager = DatabaseManager.DatabaseManager()
         self.__scanner_data_provider = ScannerDataProvider.ScannerDataProvider()
         self.__scanner_data_provider.start()
         self.__running_lock.acquire()
@@ -104,9 +103,9 @@ class DataManager(threading.Thread):
             except Queue.Full:
                 pass
 
-    def get_scanner_data(self):
+    def __get_scanner_data(self):
         """
-        get data collected from Home Scanner
+        get data collected from Home Scanner which is stored in the local queue
         """
         try:
             output = self.__scanner_data_queue.get(False)
@@ -115,3 +114,22 @@ class DataManager(threading.Thread):
 
         self.__scanner_data_queue.task_done()
         return output
+
+    def receive_scanner_data(self, scanner_data_queue):
+        """
+        Store the scanner data into an extern queue
+        """
+        current_thread = threading.currentThread()
+        __thread_timer = time.time()
+        while getattr(current_thread, 'is_running', True):
+            if time.time() - __thread_timer > 100.0/1000.0:
+                output = self.__get_scanner_data()
+                if len(output) > 0:
+                    while getattr(current_thread, 'is_running', True):
+                        try:
+                            scanner_data_queue.put(output, False)
+                        except Queue.Full:
+                            time.sleep(0.1)
+                            continue
+                        break
+                __thread_timer = time.time()
