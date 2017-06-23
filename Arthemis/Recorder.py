@@ -41,7 +41,7 @@ class Recorder(threading.Thread):
         raspivid = subprocess.Popen(self.__raspividcmd)
 
         #loop until its set to stopped or it stops
-        self.__is_running_lock().acquire()
+        self.__is_running_lock.acquire()
         self.__is_running = True
         self.__is_running_lock.release()
         self.__thread_timer = time.time()

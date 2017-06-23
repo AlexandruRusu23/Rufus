@@ -13,7 +13,7 @@ import ResourceProvider
 MP4BOX = "MP4Box"
 RESOURCE_PROVIDER = ResourceProvider.ResourceProvider()
 
-class StoreVideo(threading.Thread):
+class VideoManager(threading.Thread):
     """
     store
     """
@@ -145,7 +145,7 @@ class StoreVideo(threading.Thread):
             convert_process = subprocess.Popen(convert_command)
 
             while convert_process.poll() is None:
-                time.sleep(0.5)
+                time.sleep(0.1)
 
             while True:
                 done = 0
@@ -164,6 +164,6 @@ class StoreVideo(threading.Thread):
             clear_process = subprocess.Popen(clear_command)
 
             while clear_process.poll() is None:
-                time.sleep(0.5)
+                time.sleep(0.1)
 
             self.__raw_files_queue.task_done()
