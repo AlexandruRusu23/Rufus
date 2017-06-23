@@ -31,8 +31,8 @@ class VideoManager(threading.Thread):
 
         self.__convert_thread = None
 
-        self.__raw_files_queue = Queue.Queue(5)
-        self.__converted_files_queue = Queue.Queue(5)
+        self.__raw_files_queue = Queue.Queue(20)
+        self.__converted_files_queue = Queue.Queue(20)
 
         self.__thread_timer = 0
 

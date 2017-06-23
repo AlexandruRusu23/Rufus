@@ -9,7 +9,9 @@ import VideoManager
 import DataManager
 import AnalyserManager
 import AnimationManager
+import DatabaseManager
 import ResourceProvider
+import UserCmdProvider
 
 RESOURCE_PROVIDER = ResourceProvider.ResourceProvider()
 
@@ -20,10 +22,12 @@ class ApplicationManager(threading.Thread):
     """
     def __init__(self):
         threading.Thread.__init__(self)
+        self.__user_cmd_provider = None
 
         self.__scanner_data_queue = Queue.Queue(20)
-        self.__mp4_files_queue = Queue.Queue(5)
-        self.__analysed_mp4_files_queue = Queue.Queue(5)
+        self.__mp4_files_queue = Queue.Queue(20)
+        self.__analysed_mp4_files_queue = Queue.Queue(20)
+        self.__notifications_queue = Queue.Queue(20)
 
         self.__is_running = False
         self.__is_running_lock = threading.Lock()
@@ -41,7 +45,11 @@ class ApplicationManager(threading.Thread):
         self.__data_receive_thread = None # get scanner data from Data MGR
         self.__data_transfer_thread = None # send scanner data to Analyser MGR
 
+        self.__notifications_thread = None # upload notifications
+
     def run(self):
+        self.__user_cmd_provider = UserCmdProvider.UserCmdProvider()
+
         self.__data_manager = DataManager.DataManager()
         self.__video_manager = VideoManager.VideoManager()
         self.__analyser_manager = AnalyserManager.AnalyserManager()
@@ -49,8 +57,6 @@ class ApplicationManager(threading.Thread):
 
         self.__data_manager.start()
         self.__video_manager.start()
-        #self.__analyser_manager.start()
-        #self.__animation_manager.start()
 
         # scanner data receiver thread
         self.__data_receive_thread = threading.Thread(
@@ -66,6 +72,26 @@ class ApplicationManager(threading.Thread):
         )
         self.__video_receive_thread.start()
 
+        # transfer scanner data to be analysed
+        self.__data_transfer_thread = threading.Thread(
+            target=self.__analyser_manager.analyse_data,
+            args=(self.__scanner_data_queue, self.__notifications_queue,)
+        )
+        self.__data_transfer_thread.start()
+
+        # transfer mp4 file names to be analysed
+        self.__video_transfer_thread = threading.Thread(
+            target=self.__analyser_manager.analyse_video,
+            args=(self.__mp4_files_queue, self.__analysed_mp4_files_queue,)
+        )
+        self.__video_transfer_thread.start()
+
+        self.__notifications_thread = threading.Thread(
+            target=self.upload_notifications,
+            args=(self.__notifications_queue,)
+        )
+        self.__notifications_thread.start()
+
         self.__is_running_lock.acquire()
         self.__is_running = True
         self.__is_running_lock.release()
@@ -78,3 +104,31 @@ class ApplicationManager(threading.Thread):
                 if bool(condition) is False:
                     break
                 self.__thread_timer = time.time()
+
+                video_condition = self.__user_cmd_provider.get_user_preference(
+                    self.__user_cmd_provider.VIDEO_ENABLED
+                )
+                if int(video_condition) == 0:
+                    self.__video_manager.enable_recording(False)
+                else:
+                    if bool(self.__analyser_manager.get_motion_status()) is False:
+                        self.__video_manager.enable_recording(False)
+                    else:
+                        self.__video_manager.enable_recording(True)
+
+    def upload_notifications(self, notifications_queue):
+        """
+        Upload the notifications via DB MGR
+        """
+        current_thread = threading.currentThread()
+        __database_manager = DatabaseManager.DatabaseManager()
+        __thread_timer = time.time()
+        while getattr(current_thread, 'is_running', True):
+            if time.time() - __thread_timer > 200.0 / 1000.0:
+                try:
+                    notifications = notifications_queue.get(False)
+                except Queue.Empty:
+                    continue
+                for elem in notifications:
+                    __database_manager.insert_data_in_database(elem, 'HOME_SCANNER_NOTIFICATIONS')
+                notifications_queue.task_done()
