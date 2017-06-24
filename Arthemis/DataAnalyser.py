@@ -1,7 +1,12 @@
 """
 Scanner Data Analyser module
 """
+import time
+import Queue
 import UserCmdProvider
+import ResourceProvider
+
+RESOURCE_PROVIDER = ResourceProvider.ResourceProvider()
 
 class DataAnalyser(object):
     """
@@ -12,15 +17,99 @@ class DataAnalyser(object):
         self.__user_cmd_provider = None
         self.__notifications_list = []
         self.__motion_status = False
+        self.__temperature_threshold = None
+        self.__humidity_threshold = None
 
     def analyse(self, scanner_data_dict, animations_cmd_queue):
         """
         Analyse the given dictionary
         """
+        self.__update_user_preferences()
+        try:
+            scanner_data = scanner_data_dict.get(False)
+        except Queue.Empty:
+            return
+
+        if len(scanner_data) > 1:
+            # gas scenario
+            value = scanner_data.get('gas')
+            if len(value) > 0:
+                gas_threshold = self.__user_cmd_provider.get_user_preference(
+                    self.__user_cmd_provider.GAS_THRESHOLD
+                )
+                if gas_threshold is not None:
+                    if value[0] > gas_threshold:
+                        self.__notifications_list.append(
+                            (RESOURCE_PROVIDER.NC_GAS_ALARM, str(value[1]))
+                        )
+                        try:
+                            animations_cmd_queue.put(
+                                RESOURCE_PROVIDER.AC_ACTIVATE_ALARM,
+                                False
+                            )
+                        except Queue.Full:
+                            pass
+
+            # temperature scenario
+            value = scanner_data.get('temperature')
+            if len(value) > 1:
+                temp_threshold = self.__user_cmd_provider.get_user_preference(
+                    self.__user_cmd_provider.TEMPERATURE_THRESHOLD
+                )
+                if temp_threshold is not None:
+                    self.__notifications_list.append(
+                        (RESOURCE_PROVIDER.NC_TEMPERATURE_HIGHER, str(value[1]))
+                    )
+                    if value[0] > temp_threshold:
+                        try:
+                            animations_cmd_queue.put(
+                                RESOURCE_PROVIDER.AC_TEMPERATURE_WARNING
+                            )
+                        except Queue.Full:
+                            pass
+
+            # humidity scenario
+            value = scanner_data.get('humidity')
+            if len(value) > 1:
+                temp_threshold = self.__user_cmd_provider.get_user_preference(
+                    self.__user_cmd_provider.HUMIDITY_THRESHOLD
+                )
+                if temp_threshold is not None:
+                    self.__notifications_list.append(
+                        (RESOURCE_PROVIDER.NC_HUMIDITY_HIGHER, str(value[1]))
+                    )
+                    if value[0] > temp_threshold:
+                        try:
+                            animations_cmd_queue.put(
+                                RESOURCE_PROVIDER.AC_HUMIDITY_WARNING
+                            )
+                        except Queue.Full:
+                            pass
+
+            # motion scenario
+            value = scanner_data.get('motion')
+            if len(value) > 1:
+                if value[0] > 0:
+                    self.__notifications_list.append(
+                        (RESOURCE_PROVIDER.NC_MOTION_DETECTED, str(value[1]))
+                    )
+                    try:
+                        animations_cmd_queue.put(
+                            RESOURCE_PROVIDER.AC_MOTION_ENABLED
+                        )
+                    except Queue.Full:
+                        pass
+
+        scanner_data_dict.task_done()
+
+    def __update_user_preferences(self):
         self.__user_cmd_provider = UserCmdProvider.UserCmdProvider()
-        scanner_data = scanner_data_dict.get(False)
-        print scanner_data
-        animations_cmd_queue.put('1/2/2/1/', False)
+        self.__temperature_threshold = self.__user_cmd_provider.get_user_preference(
+            self.__user_cmd_provider.TEMPERATURE_THRESHOLD
+        )
+        self.__humidity_threshold = self.__user_cmd_provider.get_user_preference(
+            self.__user_cmd_provider.HUMIDITY_THRESHOLD
+        )
 
     def motion_status(self):
         """
@@ -32,4 +121,6 @@ class DataAnalyser(object):
         """
         get the possible notifications
         """
-        return self.__notifications_list
+        output = self.__notifications_list
+        self.__notifications_list = []
+        return output

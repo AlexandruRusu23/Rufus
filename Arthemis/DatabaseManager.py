@@ -78,10 +78,19 @@ class DatabaseManager(object):
                 TIME_COLLECTED   DATETIME       NOT NULL,
                 PRIMARY KEY (ID));"""
             self.__cursor.execute(sql_command)
-            sql_command = """CREATE TABLE IF NOT EXISTS HOME_SCANNER_DATABASE_DISTANCE
+
+            sql_command = """CREATE TABLE IF NOT EXISTS HOME_SCANNER_NOTIFICATIONS
+                (ID              INT            NOT NULL AUTO_INCREMENT,
+                VALUE            TEXT           NOT NULL,
+                TIME_COLLECTED   DATETIME       NOT NULL,
+                PRIMARY KEY (ID));"""
+            self.__cursor.execute(sql_command)
+
+            sql_command = """CREATE TABLE IF NOT EXISTS HOME_SCANNER_USER_SETTINGS
                 (ID                         INT             NOT NULL AUTO_INCREMENT,
                 TEMPERATURE_THRESHOLD       INT             NOT NULL,
                 HUMIDITY_THRESHOLD          INT             NOT NULL,
+                GAS_THRESHOLD               INT             NOT NULL,
                 FACE_DETECTION              INT             NOT NULL,
                 MOTION_DETECTION            INT             NOT NULL,
                 HUMAN_DETECTION             INT             NOT NULL,

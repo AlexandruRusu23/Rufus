@@ -27,6 +27,7 @@ class ApplicationManager(threading.Thread):
         self.__scanner_data_queue = Queue.Queue(20)
         self.__mp4_files_queue = Queue.Queue(20)
         self.__analysed_mp4_files_queue = Queue.Queue(20)
+        self.__animations_queue = Queue.Queue(20)
         self.__notifications_queue = Queue.Queue(20)
 
         self.__is_running = False
@@ -46,6 +47,8 @@ class ApplicationManager(threading.Thread):
         self.__data_transfer_thread = None # send scanner data to Analyser MGR
 
         self.__notifications_thread = None # upload notifications
+
+        self.__animations_thread = None # execute animations
 
     def run(self):
         self.__user_cmd_provider = UserCmdProvider.UserCmdProvider()
@@ -75,7 +78,7 @@ class ApplicationManager(threading.Thread):
         # transfer scanner data to be analysed
         self.__data_transfer_thread = threading.Thread(
             target=self.__analyser_manager.analyse_data,
-            args=(self.__scanner_data_queue, self.__notifications_queue,)
+            args=(self.__scanner_data_queue, self.__animations_queue, self.__notifications_queue,)
         )
         self.__data_transfer_thread.start()
 
@@ -86,11 +89,19 @@ class ApplicationManager(threading.Thread):
         )
         self.__video_transfer_thread.start()
 
+        # notifications upload thread
         self.__notifications_thread = threading.Thread(
             target=self.upload_notifications,
             args=(self.__notifications_queue,)
         )
         self.__notifications_thread.start()
+
+        # execute animations thread
+        self.__animations_thread = threading.Thread(
+            target=self.__animation_manager.animates,
+            args=(self.__animations_queue,)
+        )
+        self.__animations_thread.start()
 
         self.__is_running_lock.acquire()
         self.__is_running = True
@@ -115,6 +126,28 @@ class ApplicationManager(threading.Thread):
                         self.__video_manager.enable_recording(False)
                     else:
                         self.__video_manager.enable_recording(True)
+
+        # wait for every thread to finish their work
+        self.__data_receive_thread.is_running = False
+        self.__data_receive_thread.join()
+        self.__video_receive_thread.is_running = False
+        self.__video_receive_thread.join()
+        self.__data_transfer_thread.is_running = False
+        self.__data_transfer_thread.join()
+        self.__video_transfer_thread.is_running = False
+        self.__video_transfer_thread.join()
+        self.__notifications_thread.is_running = False
+        self.__notifications_thread.join()
+        self.__animations_thread.is_running = False
+        self.__animations_thread.join()
+
+    def stop(self):
+        """
+        stop the entire application
+        """
+        self.__is_running_lock.acquire()
+        self.__is_running = False
+        self.__is_running_lock.release()
 
     def upload_notifications(self, notifications_queue):
         """

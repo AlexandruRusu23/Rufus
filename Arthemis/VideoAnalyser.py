@@ -35,12 +35,6 @@ class VideoAnalyser(object):
 
     def apply_detections(self, mp4_file_name):
         """
-        Apply the detections results
+        Apply the detections results + rewrite the original file
         """
         print 'apply'
-
-    def get_analysed_file_name(self):
-        """
-        get the name for the analysed file
-        """
-        return self.__analysed_file_name

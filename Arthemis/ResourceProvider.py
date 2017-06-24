@@ -24,6 +24,19 @@ class ResourceProvider(object):
     SCANNER_DATA_BEGIN = 'SCANNER_DATA'
     SCANNER_DATA_END = 'END_SCANNER_DATA'
 
+    # notifications codes
+    NC_TEMPERATURE_HIGHER = 'TEMP_HIGHER'
+    NC_HUMIDITY_HIGHER = 'HUMI_HIGHER'
+    NC_MOTION_DETECTED = 'MOTION_DETECTED'
+    NC_GAS_ALARM = 'GAS_ALARM'
+
+    # animations codes
+    AC_ACTIVATE_ALARM = 'ACTIVATE_ALARM'
+    AC_MOTION_ENABLED = 'MOTION_ENABLED'
+    AC_TEMPERATURE_WARNING = 'TEMP_WARNING'
+    AC_HUMIDITY_WARNING = 'HUMIDITY_WARNING'
+    AC_AMBIANT_MODE = 'AMBIANT_MODE'
+
     def __init__(self):
         self.__string_table = yaml.load(open(RESOURCE_FILE, 'r'))
         self._scanner_board_name = ''
