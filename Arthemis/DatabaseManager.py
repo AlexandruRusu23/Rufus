@@ -86,6 +86,13 @@ class DatabaseManager(object):
                 PRIMARY KEY (ID));"""
             self.__cursor.execute(sql_command)
 
+            sql_command = """CREATE TABLE IF NOT EXISTS HOME_SCANNER_VIDEO_FILES
+                (ID              INT            NOT NULL AUTO_INCREMENT,
+                VALUE            TEXT           NOT NULL,
+                TIME_COLLECTED   DATETIME       NOT NULL,
+                PRIMARY KEY (ID));"""
+            self.__cursor.execute(sql_command)
+
             sql_command = """CREATE TABLE IF NOT EXISTS HOME_SCANNER_USER_SETTINGS
                 (ID                         INT             NOT NULL AUTO_INCREMENT,
                 TEMPERATURE_THRESHOLD       INT             NOT NULL,

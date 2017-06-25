@@ -64,34 +64,29 @@ class AnalyserManager(threading.Thread):
                     file_name = mp4_files_queue.get(False)
                 except Queue.Empty:
                     continue
-                apply_effect = 0
 
+                # face detection
                 condition = __user_cmd_provider.get_user_preference(
                     __user_cmd_provider.FACE_DETECTION_ENABLED
                 )
                 if condition is not None:
-                    if condition > 0:
-                        self.__video_analyser.face_recognition(file_name)
-                        apply_effect = 1
+                    self.__video_analyser.enable_face_recognition(int(condition))
 
+                # motion detection
                 condition = __user_cmd_provider.get_user_preference(
                     __user_cmd_provider.MOTION_DETECTION_ENABLED
                 )
                 if condition is not None:
-                    if condition > 0:
-                        self.__video_analyser.motion_detection(file_name)
-                        apply_effect = 1
+                    self.__video_analyser.enable_motion_detection(int(condition))
 
+                # human detection
                 condition = __user_cmd_provider.get_user_preference(
                     __user_cmd_provider.HUMAN_DETECTION_ENABLED
                 )
                 if condition is not None:
-                    if condition > 0:
-                        self.__video_analyser.human_recognition(file_name)
-                        apply_effect = 1
+                    self.__video_analyser.enable_human_recognition(int(condition))
 
-                if apply_effect > 0:
-                    self.__video_analyser.apply_detections(file_name)
+                self.__video_analyser.apply_detections(file_name)
 
                 while getattr(current_thread, 'is_running', True):
                     try:

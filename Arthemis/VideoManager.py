@@ -8,6 +8,7 @@ import time
 import datetime
 import Queue
 import Recorder
+import DatabaseManager
 import ResourceProvider
 
 MP4BOX = "MP4Box"
@@ -22,6 +23,8 @@ class VideoManager(threading.Thread):
         threading.Thread.__init__(self)
         self.__recorder_thread = None
         self.__video_camera = None
+
+        self.__database_manager = None
 
         self.__is_running = False
         self.__is_running_lock = threading.Lock()
@@ -163,6 +166,52 @@ class VideoManager(threading.Thread):
                 time.sleep(0.1)
 
             self.__raw_files_queue.task_done()
+
+    def transfer_analysed_files(self, analysed_files_queue):
+        """
+        transfer the analysed files to webserver location and
+        delete the mp4 files
+        """
+        current_thread = threading.currentThread()
+        self.__database_manager = DatabaseManager.DatabaseManager()
+        while getattr(current_thread, 'is_running', True):
+            try:
+                file_name = analysed_files_queue.get(False)
+            except Queue.Empty:
+                time.sleep(0.1)
+                continue
+
+            # delete the mp4 file
+            clear_command = []
+            clear_command.append('rm')
+            clear_command.append(file_name)
+
+            clear_process = subprocess.Popen(clear_command)
+
+            while clear_process.poll() is None:
+                time.sleep(0.1)
+
+            # move the avi file to website location
+            file_name = os.path.splitext(file_name)[0] + '.avi'
+            move_command = []
+            move_command.append('mv')
+            move_command.append(file_name)
+            move_command.append('/var/www/html/videos/')
+
+            move_process = subprocess.Popen(move_command)
+
+            while move_process.poll() is None:
+                time.sleep(0.1)
+
+            timest = time.time()
+            timestamp = datetime.datetime.fromtimestamp(timest).strftime('%Y-%m-%d %H:%M:%S')
+            db_file_record = [file_name, timestamp]
+            self.__database_manager.insert_data_in_database(
+                db_file_record,
+                'HOME_SCANNER_VIDEO_FILES'
+            )
+
+            analysed_files_queue.task_done()
 
     def __get_mp4_file_name(self):
         """

@@ -42,6 +42,7 @@ class ApplicationManager(threading.Thread):
 
         self.__video_receive_thread = None # get file names from Video MGR
         self.__video_transfer_thread = None # send file names to Analyser MGR
+        self.__transfer_analysed_thread = None # transfer analysed files
 
         self.__data_receive_thread = None # get scanner data from Data MGR
         self.__data_transfer_thread = None # send scanner data to Analyser MGR
@@ -89,6 +90,13 @@ class ApplicationManager(threading.Thread):
         )
         self.__video_transfer_thread.start()
 
+        # transfer analysed files to website location
+        self.__transfer_analysed_thread = threading.Thread(
+            target=self.__video_manager.transfer_analysed_files,
+            args=(self.__analysed_mp4_files_queue,)
+        )
+        self.__transfer_analysed_thread.start()
+
         # notifications upload thread
         self.__notifications_thread = threading.Thread(
             target=self.upload_notifications,
@@ -107,6 +115,7 @@ class ApplicationManager(threading.Thread):
         self.__is_running = True
         self.__is_running_lock.release()
         self.__thread_timer = time.time()
+
         while True:
             if time.time() - self.__thread_timer > 1000.0 / 1000.0:
                 self.__is_running_lock.acquire()
@@ -131,18 +140,28 @@ class ApplicationManager(threading.Thread):
         # wait for every thread to finish their work
         self.__data_manager.stop()
         self.__data_manager.join()
+
         self.__video_manager.stop()
         self.__video_manager.join()
+
         self.__data_receive_thread.is_running = False
         self.__data_receive_thread.join()
+
         self.__video_receive_thread.is_running = False
         self.__video_receive_thread.join()
+
         self.__data_transfer_thread.is_running = False
         self.__data_transfer_thread.join()
+
         self.__video_transfer_thread.is_running = False
         self.__video_transfer_thread.join()
+
+        self.__transfer_analysed_thread.is_running = False
+        self.__transfer_analysed_thread.join()
+
         self.__notifications_thread.is_running = False
         self.__notifications_thread.join()
+
         self.__animations_thread.is_running = False
         self.__animations_thread.join()
 
