@@ -49,6 +49,14 @@ class DataAnalyser(object):
                             )
                         except Queue.Full:
                             pass
+                    else:
+                        try:
+                            animations_cmd_queue.put(
+                                RESOURCE_PROVIDER.AC_DEACTIVATE_ALARM,
+                                False
+                            )
+                        except Queue.Full:
+                            pass
 
             # temperature scenario
             value = scanner_data.get('temperature')
@@ -57,13 +65,20 @@ class DataAnalyser(object):
                     self.__user_cmd_provider.TEMPERATURE_THRESHOLD
                 )
                 if temp_threshold is not None:
-                    self.__notifications_list.append(
-                        (RESOURCE_PROVIDER.NC_TEMPERATURE_HIGHER, str(value[1]))
-                    )
                     if value[0] > temp_threshold:
+                        self.__notifications_list.append(
+                            (RESOURCE_PROVIDER.NC_TEMPERATURE_HIGHER, str(value[1]))
+                        )
                         try:
                             animations_cmd_queue.put(
-                                RESOURCE_PROVIDER.AC_TEMPERATURE_WARNING
+                                RESOURCE_PROVIDER.AC_TEMPERATURE_WARNING_ON
+                            )
+                        except Queue.Full:
+                            pass
+                    else:
+                        try:
+                            animations_cmd_queue.put(
+                                RESOURCE_PROVIDER.AC_TEMPERATURE_WARNING_OFF
                             )
                         except Queue.Full:
                             pass
@@ -75,13 +90,20 @@ class DataAnalyser(object):
                     self.__user_cmd_provider.HUMIDITY_THRESHOLD
                 )
                 if temp_threshold is not None:
-                    self.__notifications_list.append(
-                        (RESOURCE_PROVIDER.NC_HUMIDITY_HIGHER, str(value[1]))
-                    )
                     if value[0] > temp_threshold:
+                        self.__notifications_list.append(
+                            (RESOURCE_PROVIDER.NC_HUMIDITY_HIGHER, str(value[1]))
+                        )
                         try:
                             animations_cmd_queue.put(
-                                RESOURCE_PROVIDER.AC_HUMIDITY_WARNING
+                                RESOURCE_PROVIDER.AC_HUMIDITY_WARNING_ON
+                            )
+                        except Queue.Full:
+                            pass
+                    else:
+                        try:
+                            animations_cmd_queue.put(
+                                RESOURCE_PROVIDER.AC_HUMIDITY_WARNING_OFF
                             )
                         except Queue.Full:
                             pass
@@ -96,6 +118,13 @@ class DataAnalyser(object):
                     try:
                         animations_cmd_queue.put(
                             RESOURCE_PROVIDER.AC_MOTION_ENABLED
+                        )
+                    except Queue.Full:
+                        pass
+                else:
+                    try:
+                        animations_cmd_queue.put(
+                            RESOURCE_PROVIDER.AC_MOTION_DISABLED
                         )
                     except Queue.Full:
                         pass

@@ -32,6 +32,9 @@ class AnimationManager(object):
                 except Queue.Empty:
                     continue
 
-                self.__animation_executor.execute(str(animation))
-
+                while getattr(current_thread, 'is_running', True):
+                    if bool(self.__animation_executor.execute(str(animation))) is True:
+                        break
+                    time.sleep(0.05)
+                animations_queue.task_done()
                 __thread_timer = time.time()

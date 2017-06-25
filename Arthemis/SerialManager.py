@@ -45,6 +45,12 @@ class SerialManager(threading.Thread):
         self.__data_end_msg = \
             RESOURCE_PROVIDER.get_string_table(RESOURCE_PROVIDER.SCANNER_DATA_END)
 
+    def connect_to_board(self):
+        """
+        connect to board
+        """
+        self.__serial_file = serial.Serial(self.__serial_name, self.__serial_ratio)
+
     def run(self):
         self.__running_lock.acquire()
         self.__is_running = True
