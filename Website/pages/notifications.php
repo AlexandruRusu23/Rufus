@@ -1,3 +1,32 @@
+<?php
+
+$servername = "localhost";
+$username = "root";
+$password = "internet12";
+
+$notificationsList = array();
+
+try
+{
+    $conn = new PDO("mysql:host=$servername;dbname=test_create_DB", $username, $password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    # notifications
+    $stmt = $conn->prepare("SELECT value, time_collected FROM HOME_SCANNER_NOTIFICATIONS ORDER BY TIME_COLLECTED");
+    $stmt->execute();
+    $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    foreach($stmt->fetchAll() as $k=>$v) {
+        $notificationsList[(string)$v['time_collected']] = (string)$v['value'];
+    }
+}
+catch(PDOException $e)
+{
+    die($e->getMessage());
+    echo "Connection failed: " . $e->getMessage();
+}
+
+?>
+
 <html>
 <head>
   <title>Rufus - Home Smart Assistant</title>
@@ -24,7 +53,7 @@
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="../pages/index.php"><i class="fa fa-bell fa-fw fa-3x"></i></a>
+            <a class="navbar-brand" href="../pages/index.php"><i class="fa fa-bell fa-fw fa-2x"></i></a>
           </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -82,51 +111,30 @@
                         <!-- /.panel-heading -->
                         <div class="panel-body">
                             <div class="list-group">
-                                <a href="#" class="list-group-item">
-                                    <i class="fa fa-comment fa-fw"></i> New Comment
-                                    <span class="pull-right text-muted small"><em>4 minutes ago</em>
-                                    </span>
-                                </a>
-                                <a href="#" class="list-group-item">
-                                    <i class="fa fa-twitter fa-fw"></i> 3 New Followers
-                                    <span class="pull-right text-muted small"><em>12 minutes ago</em>
-                                    </span>
-                                </a>
-                                <a href="#" class="list-group-item">
-                                    <i class="fa fa-envelope fa-fw"></i> Message Sent
-                                    <span class="pull-right text-muted small"><em>27 minutes ago</em>
-                                    </span>
-                                </a>
-                                <a href="#" class="list-group-item">
-                                    <i class="fa fa-tasks fa-fw"></i> New Task
-                                    <span class="pull-right text-muted small"><em>43 minutes ago</em>
-                                    </span>
-                                </a>
-                                <a href="#" class="list-group-item">
-                                    <i class="fa fa-upload fa-fw"></i> Server Rebooted
-                                    <span class="pull-right text-muted small"><em>11:32 AM</em>
-                                    </span>
-                                </a>
-                                <a href="#" class="list-group-item">
-                                    <i class="fa fa-bolt fa-fw"></i> Server Crashed!
-                                    <span class="pull-right text-muted small"><em>11:13 AM</em>
-                                    </span>
-                                </a>
-                                <a href="#" class="list-group-item">
-                                    <i class="fa fa-warning fa-fw"></i> Server Not Responding
-                                    <span class="pull-right text-muted small"><em>10:57 AM</em>
-                                    </span>
-                                </a>
-                                <a href="#" class="list-group-item">
-                                    <i class="fa fa-shopping-cart fa-fw"></i> New Order Placed
-                                    <span class="pull-right text-muted small"><em>9:49 AM</em>
-                                    </span>
-                                </a>
-                                <a href="#" class="list-group-item">
-                                    <i class="fa fa-money fa-fw"></i> Payment Received
-                                    <span class="pull-right text-muted small"><em>Yesterday</em>
-                                    </span>
-                                </a>
+                              <?php
+                                foreach ($notificationsList as $key => $value) {
+                                  $iconType = "fa-warning";
+                                  if (strpos($value, 'MOTION') !== false)
+                                  {
+                                    $iconType = "fa-eye";
+                                  }
+                                  if (strpos($value, 'TEMP') !== false)
+                                  {
+                                    $iconType = "fa-thermometer-empty";
+                                  }
+                                  if (strpos($value, 'HUMI') !== false)
+                                  {
+                                    $iconType = "fa-tint";
+                                  }
+                                  echo "
+                                    <a href=\"#\" class=\"list-group-item\">
+                                        <i class=\"fa $iconType fa-fw\"></i> $value
+                                        <span class=\"pull-right text-muted small\"><em>$key</em>
+                                        </span>
+                                    </a>
+                                  ";
+                                }
+                              ?>
                             </div>
                             <!-- /.list-group -->
                         </div>

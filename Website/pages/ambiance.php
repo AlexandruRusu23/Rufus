@@ -23,6 +23,37 @@ try
         $temperatureValue = $v['value'];
     }
 
+    $stmt = $conn->prepare("SELECT value FROM HOME_SCANNER_DATABASE_HUMIDITY WHERE time_collected in (select max(time_collected) from HOME_SCANNER_DATABASE_HUMIDITY)");
+    $stmt->execute();
+
+    $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    foreach($stmt->fetchAll() as $k=>$v) {
+        $humidityValue = $v['value'];
+    }
+
+    $stmt = $conn->prepare("SELECT value FROM HOME_SCANNER_DATABASE_GAS_RECORD WHERE time_collected in (select max(time_collected) from HOME_SCANNER_DATABASE_GAS_RECORD)");
+    $stmt->execute();
+
+    $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    foreach($stmt->fetchAll() as $k=>$v) {
+        $gasValue = $v['value'];
+    }
+
+    $stmt = $conn->prepare("SELECT value FROM HOME_SCANNER_DATABASE_LIGHT WHERE time_collected in (select max(time_collected) from HOME_SCANNER_DATABASE_LIGHT)");
+    $stmt->execute();
+
+    $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    foreach($stmt->fetchAll() as $k=>$v) {
+        $lightValue = $v['value'];
+    }
+
+    $stmt = $conn->prepare("SELECT value FROM HOME_SCANNER_DATABASE_MOTION WHERE time_collected in (select max(time_collected) from HOME_SCANNER_DATABASE_MOTION)");
+    $stmt->execute();
+
+    $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    foreach($stmt->fetchAll() as $k=>$v) {
+        $motionValue = $v['value'];
+    }
 }
 catch(PDOException $e)
 {
@@ -155,6 +186,7 @@ catch(PDOException $e)
                                       <?php
                                         print "$humidityValue";
                                       ?>
+                                      %
                                       </strong>
                                     </div>
                                     <div>Humidity</div>
@@ -181,8 +213,9 @@ catch(PDOException $e)
                                     <div class="h3">
                                       <strong>
                                       <?php
-                                        print "$gasValue";
+                                        print number_format($gasValue / 1024 * 100, 2);
                                       ?>
+                                      %
                                       </strong>
                                     </div>
                                     <div>Smoke and Gas</div>
@@ -209,8 +242,9 @@ catch(PDOException $e)
                                     <div class="h3">
                                       <strong>
                                       <?php
-                                        print "$lightValue";
+                                        print number_format($lightValue / 1024 * 100, 2);
                                       ?>
+                                      %
                                       </strong>
                                     </div>
                                     <div>Light</div>
@@ -237,7 +271,13 @@ catch(PDOException $e)
                                     <div class="h3">
                                       <strong>
                                       <?php
-                                        print "$motionValue";
+                                        if ($motionValue > 0)
+                                        {
+                                          print 'Suspicious';
+                                        }
+                                        else {
+                                          print 'Stable';
+                                        }
                                       ?>
                                       </strong>
                                     </div>

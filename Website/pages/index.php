@@ -1,3 +1,83 @@
+<?php
+
+$servername = "localhost";
+$username = "root";
+$password = "internet12";
+
+$ambianceRecords = 0;
+$videosRecords = 0;
+$notificationsList = array();
+$timelineList = array();
+
+try
+{
+    $conn = new PDO("mysql:host=$servername;dbname=test_create_DB", $username, $password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    # ambiance records
+    $stmt = $conn->prepare("SELECT count(value) as 'value' FROM HOME_SCANNER_DATABASE_TEMPERATURE");
+    $stmt->execute();
+    $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    foreach($stmt->fetchAll() as $k=>$v) {
+      $ambianceRecords = $ambianceRecords + $v['value'];
+    }
+    $stmt = $conn->prepare("SELECT count(value) as 'value' FROM HOME_SCANNER_DATABASE_HUMIDITY");
+    $stmt->execute();
+    $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    foreach($stmt->fetchAll() as $k=>$v) {
+      $ambianceRecords = $ambianceRecords + $v['value'];
+    }
+    $stmt = $conn->prepare("SELECT count(value) as 'value' FROM HOME_SCANNER_DATABASE_LIGHT");
+    $stmt->execute();
+    $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    foreach($stmt->fetchAll() as $k=>$v) {
+      $ambianceRecords = $ambianceRecords + $v['value'];
+    }
+    $stmt = $conn->prepare("SELECT count(value) as 'value' FROM HOME_SCANNER_DATABASE_GAS_RECORD");
+    $stmt->execute();
+    $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    foreach($stmt->fetchAll() as $k=>$v) {
+      $ambianceRecords = $ambianceRecords + $v['value'];
+    }
+    $stmt = $conn->prepare("SELECT count(value) as 'value' FROM HOME_SCANNER_DATABASE_MOTION");
+    $stmt->execute();
+    $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    foreach($stmt->fetchAll() as $k=>$v) {
+      $ambianceRecords = $ambianceRecords + $v['value'];
+    }
+
+    # video numbers
+    $stmt = $conn->prepare("SELECT count(value) as 'value' FROM HOME_SCANNER_VIDEO_FILES");
+    $stmt->execute();
+    $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    foreach($stmt->fetchAll() as $k=>$v) {
+      $videosRecords = $v['value'];
+    }
+
+    # notifications
+    $stmt = $conn->prepare("SELECT value, time_collected FROM HOME_SCANNER_NOTIFICATIONS ORDER BY TIME_COLLECTED DESC LIMIT 13");
+    $stmt->execute();
+    $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    foreach($stmt->fetchAll() as $k=>$v) {
+        $notificationsList[(string)$v['time_collected']] = (string)$v['value'];
+    }
+
+    # timeline
+    $stmt = $conn->prepare("SELECT value, time_collected FROM HOME_SCANNER_NOTIFICATIONS WHERE value LIKE '%GAS%' ORDER BY TIME_COLLECTED DESC LIMIT 5");
+    $stmt->execute();
+    $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    foreach($stmt->fetchAll() as $k=>$v) {
+        $timelineList[(string)$v['time_collected']] = (string)$v['value'];
+    }
+}
+catch(PDOException $e)
+{
+    die($e->getMessage());
+    echo "Connection failed: " . $e->getMessage();
+}
+
+?>
+
 <html>
 <head>
   <title>Rufus - Home Smart Assistant</title>
@@ -85,7 +165,14 @@
                                     <i class="fa fa-leaf fa-5x"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="h3"><strong>47 records</strong></div>
+                                    <div class="h3">
+                                      <strong>
+                                        <?php
+                                          print $ambianceRecords;
+                                        ?>
+                                        records
+                                      </strong>
+                                    </div>
                                     <div>Ambiance Watcher</div>
                                 </div>
                             </div>
@@ -129,7 +216,13 @@
                                     <i class="fa fa-eye fa-5x"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="h3"><strong>124 videos</strong></div>
+                                    <div class="h3">
+                                      <strong>
+                                        <?php
+                                          print $videosRecords;
+                                        ?>
+                                      </strong>
+                                    </div>
                                     <div>Surveillance</div>
                                 </div>
                             </div>
@@ -177,30 +270,20 @@
                         <!-- /.panel-heading -->
                         <div class="panel-body">
                           <div class="list-group">
-                            <a class="list-group-item list-group-item-action flex-column align-items-start">
-                              <div class="d-flex w-100 justify-content-between">
-                                <h4 class="mb-0"><i class="fa fa-cogs fa-fw"></i> List group item heading</h4>
-                                <span class="pull-top text-muted small"><em>4 minutes ago</em>
-                              </div>
-                              <p class="h5">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
-                              <small>Donec id elit non mi porta.</small>
-                            </a>
-                            <a class="list-group-item list-group-item-action flex-column align-items-start">
-                              <div class="d-flex w-100 justify-content-between">
-                                <h4 class="mb-0"><i class="fa fa-cogs fa-fw"></i> List group item heading</h4>
-                                <span class="pull-top text-muted small"><em>4 minutes ago</em>
-                              </div>
-                              <p class="h5">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
-                              <small class="text-muted">Donec id elit non mi porta.</small>
-                            </a>
-                            <a class="list-group-item list-group-item-action flex-column align-items-start">
-                              <div class="d-flex w-100 justify-content-between">
-                                <h4 class="mb-0"><i class="fa fa-cogs fa-fw"></i> List group item heading</h4>
-                                <span class="pull-top text-muted small"><em>4 minutes ago</em>
-                              </div>
-                              <p class="h5">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
-                              <small class="text-muted">Donec id elit non mi porta.</small>
-                            </a>
+                            <?php
+                              foreach ($timelineList as $key => $value)
+                              {
+                                echo "<a class=\"list-group-item list-group-item-action flex-column align-items-start\">
+                                  <div class=\"d-flex w-100 justify-content-between\">
+                                    <h4 class=\"mb-0\"><i class=\"fa fa-cogs fa-fw\"></i> $value </h4>
+                                    <span class=\"pull-top text-muted small\"><em> $key </em>
+                                  </div>
+                                  <p class=\"h5\">
+                                    $value
+                                  </p>
+                                </a>";
+                              }
+                            ?>
                           </div>
                         </div>
                         <!-- /.panel-body -->
@@ -216,51 +299,30 @@
                         <!-- /.panel-heading -->
                         <div class="panel-body">
                             <div class="list-group">
-                                <a href="#" class="list-group-item">
-                                    <i class="fa fa-comment fa-fw"></i> New Comment
-                                    <span class="pull-right text-muted small"><em>4 minutes ago</em>
-                                    </span>
-                                </a>
-                                <a href="#" class="list-group-item">
-                                    <i class="fa fa-twitter fa-fw"></i> 3 New Followers
-                                    <span class="pull-right text-muted small"><em>12 minutes ago</em>
-                                    </span>
-                                </a>
-                                <a href="#" class="list-group-item">
-                                    <i class="fa fa-envelope fa-fw"></i> Message Sent
-                                    <span class="pull-right text-muted small"><em>27 minutes ago</em>
-                                    </span>
-                                </a>
-                                <a href="#" class="list-group-item">
-                                    <i class="fa fa-tasks fa-fw"></i> New Task
-                                    <span class="pull-right text-muted small"><em>43 minutes ago</em>
-                                    </span>
-                                </a>
-                                <a href="#" class="list-group-item">
-                                    <i class="fa fa-upload fa-fw"></i> Server Rebooted
-                                    <span class="pull-right text-muted small"><em>11:32 AM</em>
-                                    </span>
-                                </a>
-                                <a href="#" class="list-group-item">
-                                    <i class="fa fa-bolt fa-fw"></i> Server Crashed!
-                                    <span class="pull-right text-muted small"><em>11:13 AM</em>
-                                    </span>
-                                </a>
-                                <a href="#" class="list-group-item">
-                                    <i class="fa fa-warning fa-fw"></i> Server Not Responding
-                                    <span class="pull-right text-muted small"><em>10:57 AM</em>
-                                    </span>
-                                </a>
-                                <a href="#" class="list-group-item">
-                                    <i class="fa fa-shopping-cart fa-fw"></i> New Order Placed
-                                    <span class="pull-right text-muted small"><em>9:49 AM</em>
-                                    </span>
-                                </a>
-                                <a href="#" class="list-group-item">
-                                    <i class="fa fa-money fa-fw"></i> Payment Received
-                                    <span class="pull-right text-muted small"><em>Yesterday</em>
-                                    </span>
-                                </a>
+                                <?php
+                                  foreach ($notificationsList as $key => $value) {
+                                    $iconType = "fa-warning";
+                                    if (strpos($value, 'MOTION') !== false)
+                                    {
+                                      $iconType = "fa-eye";
+                                    }
+                                    if (strpos($value, 'TEMP') !== false)
+                                    {
+                                      $iconType = "fa-thermometer-empty";
+                                    }
+                                    if (strpos($value, 'HUMI') !== false)
+                                    {
+                                      $iconType = "fa-tint";
+                                    }
+                                    echo "
+                                      <a href=\"../pages/notifications.php\" class=\"list-group-item\">
+                                          <i class=\"fa $iconType fa-fw\"></i> $value
+                                          <span class=\"pull-right text-muted small\"><em>$key</em>
+                                          </span>
+                                      </a>
+                                    ";
+                                  }
+                                ?>
                             </div>
                             <!-- /.list-group -->
                             <a href="../pages/notifications.php" class="btn btn-default btn-block">View All Alerts</a>
