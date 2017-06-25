@@ -122,7 +122,7 @@ class DataManager(threading.Thread):
         current_thread = threading.currentThread()
         __thread_timer = time.time()
         while getattr(current_thread, 'is_running', True):
-            if time.time() - __thread_timer > 100.0/1000.0:
+            if time.time() - __thread_timer > 100.0 / 1000.0:
                 output = self.__get_scanner_data()
                 if len(output) > 0:
                     while getattr(current_thread, 'is_running', True):

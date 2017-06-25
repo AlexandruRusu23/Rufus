@@ -24,6 +24,7 @@ class AnimationManager(object):
         """
         current_thread = threading.currentThread()
         self.__animation_executor = AnimationExecutor.AnimationExecutor()
+        self.__animation_executor.start()
         __thread_timer = time.time()
         while getattr(current_thread, 'is_running', True):
             if time.time() - __thread_timer > 100.0 / 1000.0:
@@ -38,3 +39,5 @@ class AnimationManager(object):
                     time.sleep(0.05)
                 animations_queue.task_done()
                 __thread_timer = time.time()
+        self.__animation_executor.stop()
+        self.__animation_executor.join()

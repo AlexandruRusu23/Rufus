@@ -119,15 +119,20 @@ class ApplicationManager(threading.Thread):
                 video_condition = self.__user_cmd_provider.get_user_preference(
                     self.__user_cmd_provider.VIDEO_ENABLED
                 )
-                if int(video_condition) == 0:
-                    self.__video_manager.enable_recording(False)
-                else:
-                    if bool(self.__analyser_manager.get_motion_status()) is False:
+                if video_condition is not None:
+                    if int(video_condition) == 0:
                         self.__video_manager.enable_recording(False)
                     else:
-                        self.__video_manager.enable_recording(True)
+                        if bool(self.__analyser_manager.get_motion_status()) is False:
+                            self.__video_manager.enable_recording(False)
+                        else:
+                            self.__video_manager.enable_recording(True)
 
         # wait for every thread to finish their work
+        self.__data_manager.stop()
+        self.__data_manager.join()
+        self.__video_manager.stop()
+        self.__video_manager.join()
         self.__data_receive_thread.is_running = False
         self.__data_receive_thread.join()
         self.__video_receive_thread.is_running = False
