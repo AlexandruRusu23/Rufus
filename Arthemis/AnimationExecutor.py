@@ -91,7 +91,7 @@ class AnimationExecutor(threading.Thread):
 
                 self.__thread_timer = time.time()
 
-            if time.time() - self.__animation_timer > 300.0 / 1000.0:
+            if time.time() - self.__animation_timer > 100.0 / 1000.0:
                 try:
                     animation = self.__animations_queue.get(False)
                 except Queue.Empty:
@@ -193,7 +193,8 @@ class AnimationExecutor(threading.Thread):
         current_thread = threading.currentThread()
         __thread_timer = time.time()
         while getattr(current_thread, 'is_running', True):
-            if time.time() - __thread_timer > 100.0 / 1000.0:
+            if time.time() - __thread_timer > 200.0 / 1000.0:
+                __thread_timer = time.time()
                 self.__alarm_enabled_lock.acquire()
                 alarm_cond = self.__alarm_enabled
                 self.__alarm_enabled_lock.release()

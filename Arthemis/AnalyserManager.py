@@ -41,7 +41,7 @@ class AnalyserManager(threading.Thread):
                     scanner_data_dict = scanner_data_queue.get(False)
                 except Queue.Empty:
                     continue
-                self.__data_analyser.analyse(scanner_data_dict, animations_cmd_queue)
+                self.__data_analyser.analyse(scanner_data_dict)
                 try:
                     notifications_queue.put(self.__data_analyser.get_notifications(), False)
                 except Queue.Full:
@@ -59,6 +59,7 @@ class AnalyserManager(threading.Thread):
         __thread_timer = time.time()
         while getattr(current_thread, 'is_running', True):
             if time.time() - __thread_timer > 1000.0 / 1000.0:
+                __thread_timer = time.time()
                 try:
                     file_name = mp4_files_queue.get(False)
                 except Queue.Empty:

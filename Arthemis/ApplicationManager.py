@@ -163,6 +163,7 @@ class ApplicationManager(threading.Thread):
         __thread_timer = time.time()
         while getattr(current_thread, 'is_running', True):
             if time.time() - __thread_timer > 200.0 / 1000.0:
+                __thread_timer = time.time()
                 try:
                     notifications = notifications_queue.get(False)
                 except Queue.Empty:

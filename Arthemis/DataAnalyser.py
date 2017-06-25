@@ -19,9 +19,10 @@ class DataAnalyser(object):
         self.__temperature_value = None
         self.__humidity_value = None
         self.__gas_value = None
+        self.__motion_value = None
         self.__user_cmd_provider = UserCmdProvider.UserCmdProvider()
 
-    def analyse(self, scanner_data_dict, animations_cmd_queue):
+    def analyse(self, scanner_data_dict):
         """
         Analyse the given dictionary
         """
@@ -88,28 +89,20 @@ class DataAnalyser(object):
             value = scanner_data_dict.get('motion')
             if value is not None:
                 if len(value) > 1:
-                    if int(value[0]) > 0:
+                    self.__motion_value = int(value[0])
+                    if self.__motion_value > 0:
+                        self.__motion_status = True
                         self.__notifications_list.append(
                             (RESOURCE_PROVIDER.NC_MOTION_DETECTED, str(value[1]))
                         )
-                        try:
-                            animations_cmd_queue.put(
-                                RESOURCE_PROVIDER.AC_MOTION_ENABLED
-                            )
-                        except Queue.Full:
-                            pass
                     else:
-                        try:
-                            animations_cmd_queue.put(
-                                RESOURCE_PROVIDER.AC_MOTION_DISABLED
-                            )
-                        except Queue.Full:
-                            pass
+                        self.__motion_status = False
 
     def update_animations(self, animations_cmd_queue):
         """
         verify constantly to make animations acording to user settings
         """
+        # gas alarm animation
         threshold = self.__user_cmd_provider.get_user_preference(
             self.__user_cmd_provider.GAS_THRESHOLD
         )
@@ -131,6 +124,7 @@ class DataAnalyser(object):
                 except Queue.Full:
                     pass
 
+        # temperature warning animation
         threshold = self.__user_cmd_provider.get_user_preference(
             self.__user_cmd_provider.TEMPERATURE_THRESHOLD
         )
@@ -150,6 +144,7 @@ class DataAnalyser(object):
                 except Queue.Full:
                     pass
 
+        # humidity warning animation
         threshold = self.__user_cmd_provider.get_user_preference(
             self.__user_cmd_provider.HUMIDITY_THRESHOLD
         )
@@ -165,6 +160,23 @@ class DataAnalyser(object):
                 try:
                     animations_cmd_queue.put(
                         RESOURCE_PROVIDER.AC_HUMIDITY_WARNING_OFF
+                    )
+                except Queue.Full:
+                    pass
+
+        # motion detected animation
+        if self.__motion_value is not None:
+            if self.__motion_value > 0:
+                try:
+                    animations_cmd_queue.put(
+                        RESOURCE_PROVIDER.AC_MOTION_ENABLED
+                    )
+                except Queue.Full:
+                    pass
+            else:
+                try:
+                    animations_cmd_queue.put(
+                        RESOURCE_PROVIDER.AC_MOTION_DISABLED
                     )
                 except Queue.Full:
                     pass
