@@ -38,7 +38,7 @@ class DataAnalyser(object):
                         self.__user_cmd_provider.GAS_THRESHOLD
                     )
                     if gas_threshold is not None:
-                        if value[0] > gas_threshold:
+                        if int(value[0]) > gas_threshold:
                             self.__notifications_list.append(
                                 (RESOURCE_PROVIDER.NC_GAS_ALARM, str(value[1]))
                             )
@@ -66,7 +66,7 @@ class DataAnalyser(object):
                         self.__user_cmd_provider.TEMPERATURE_THRESHOLD
                     )
                     if temp_threshold is not None:
-                        if value[0] > temp_threshold:
+                        if float(value[0]) > temp_threshold:
                             self.__notifications_list.append(
                                 (RESOURCE_PROVIDER.NC_TEMPERATURE_HIGHER, str(value[1]))
                             )
@@ -92,7 +92,7 @@ class DataAnalyser(object):
                         self.__user_cmd_provider.HUMIDITY_THRESHOLD
                     )
                     if temp_threshold is not None:
-                        if value[0] > temp_threshold:
+                        if float(value[0]) > temp_threshold:
                             self.__notifications_list.append(
                                 (RESOURCE_PROVIDER.NC_HUMIDITY_HIGHER, str(value[1]))
                             )
@@ -114,7 +114,7 @@ class DataAnalyser(object):
             value = scanner_data_dict.get('motion')
             if value is not None:
                 if len(value) > 1:
-                    if value[0] > 0:
+                    if int(value[0]) > 0:
                         self.__notifications_list.append(
                             (RESOURCE_PROVIDER.NC_MOTION_DETECTED, str(value[1]))
                         )

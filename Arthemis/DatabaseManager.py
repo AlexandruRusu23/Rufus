@@ -39,14 +39,14 @@ class DatabaseManager(object):
             self.__cursor = self.__db_connection.cursor()
             sql_command = """CREATE TABLE IF NOT EXISTS HOME_SCANNER_DATABASE_TEMPERATURE
                 (ID              INT            NOT NULL AUTO_INCREMENT,
-                VALUE            DOUBLE         NOT NULL,
+                VALUE            INT            NOT NULL,
                 TIME_COLLECTED   DATETIME       NOT NULL,
                 PRIMARY KEY (ID));"""
             self.__cursor.execute(sql_command)
 
             sql_command = """CREATE TABLE IF NOT EXISTS HOME_SCANNER_DATABASE_GAS_RECORD
                 (ID              INT            NOT NULL AUTO_INCREMENT,
-                VALUE            DOUBLE         NOT NULL,
+                VALUE            INT            NOT NULL,
                 TIME_COLLECTED   DATETIME       NOT NULL,
                 PRIMARY KEY (ID));"""
             self.__cursor.execute(sql_command)
@@ -60,7 +60,7 @@ class DatabaseManager(object):
 
             sql_command = """CREATE TABLE IF NOT EXISTS HOME_SCANNER_DATABASE_HUMIDITY
                 (ID              INT            NOT NULL AUTO_INCREMENT,
-                VALUE            DOUBLE         NOT NULL,
+                VALUE            INT            NOT NULL,
                 TIME_COLLECTED   DATETIME       NOT NULL,
                 PRIMARY KEY (ID));"""
             self.__cursor.execute(sql_command)
@@ -91,6 +91,7 @@ class DatabaseManager(object):
                 TEMPERATURE_THRESHOLD       INT             NOT NULL,
                 HUMIDITY_THRESHOLD          INT             NOT NULL,
                 GAS_THRESHOLD               INT             NOT NULL,
+                VIDEO_ENABLED               INT             NOT NULL,
                 FACE_DETECTION              INT             NOT NULL,
                 MOTION_DETECTION            INT             NOT NULL,
                 HUMAN_DETECTION             INT             NOT NULL,

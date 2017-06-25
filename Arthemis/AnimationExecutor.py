@@ -213,11 +213,11 @@ class AnimationExecutor(threading.Thread):
             self.__turn_on_the_mode(AnimationExecutor._YELLOW_MODE)
         elif warning_type == RESOURCE_PROVIDER.AC_TEMPERATURE_WARNING_OFF:
             self.__turn_off_the_mode(AnimationExecutor._YELLOW_MODE)
-        elif warning_type == RESOURCE_PROVIDER.AC_HUMIDITY_WARNING_ON:
+        if warning_type == RESOURCE_PROVIDER.AC_HUMIDITY_WARNING_ON:
             self.__turn_on_the_mode(AnimationExecutor._GREEN_MODE)
         elif warning_type == RESOURCE_PROVIDER.AC_HUMIDITY_WARNING_OFF:
             self.__turn_off_the_mode(AnimationExecutor._GREEN_MODE)
-        elif warning_type == RESOURCE_PROVIDER.AC_MOTION_ENABLED:
+        if warning_type == RESOURCE_PROVIDER.AC_MOTION_ENABLED:
             self.__turn_on_the_mode(AnimationExecutor._BLUE_MODE)
         elif warning_type == RESOURCE_PROVIDER.AC_MOTION_DISABLED:
             self.__turn_off_the_mode(AnimationExecutor._BLUE_MODE)

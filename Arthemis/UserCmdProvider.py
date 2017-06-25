@@ -43,15 +43,15 @@ class UserCmdProvider(object):
 
         user_settings = \
             self.__database_manager.get_data_from_database('HOME_SCANNER_USER_SETTINGS')
-        if len(user_settings) > 7:
-            for elem in user_settings:
-                self.__temperature_threshold = int(elem[1])
-                self.__humidity_threshold = int(elem[2])
-                self.__gas_threshold = int(elem[3])
-                self.__video_enabled = int(elem[4])
-                self.__face_detection_enabled = int(elem[5])
-                self.__motion_detection_enabled = int(elem[6])
-                self.__human_detection_enabled = int(elem[7])
+        if len(user_settings) > 0:
+            if len(user_settings[0]) > 7:
+                self.__temperature_threshold = int(user_settings[0][1])
+                self.__humidity_threshold = int(user_settings[0][2])
+                self.__gas_threshold = int(user_settings[0][3])
+                self.__video_enabled = int(user_settings[0][4])
+                self.__face_detection_enabled = int(user_settings[0][5])
+                self.__motion_detection_enabled = int(user_settings[0][6])
+                self.__human_detection_enabled = int(user_settings[0][7])
 
     def get_user_preference(self, preference_type):
         """
@@ -60,7 +60,7 @@ class UserCmdProvider(object):
         self.__collect_data()
         if preference_type == UserCmdProvider.TEMPERATURE_THRESHOLD:
             return self.__temperature_threshold
-        elif preference_type == UserCmdProvider.HUMAN_DETECTION_ENABLED:
+        elif preference_type == UserCmdProvider.HUMIDITY_THRESHOLD:
             return self.__humidity_threshold
         elif preference_type == UserCmdProvider.GAS_THRESHOLD:
             return self.__gas_threshold
