@@ -14,18 +14,17 @@ class DataAnalyser(object):
     and return feedback, also commands for Animation Manager
     """
     def __init__(self):
-        self.__user_cmd_provider = None
         self.__notifications_list = []
         self.__motion_status = False
         self.__temperature_value = None
         self.__humidity_value = None
         self.__gas_value = None
+        self.__user_cmd_provider = UserCmdProvider.UserCmdProvider()
 
     def analyse(self, scanner_data_dict, animations_cmd_queue):
         """
         Analyse the given dictionary
         """
-        self.__user_cmd_provider = UserCmdProvider.UserCmdProvider()
 
         if scanner_data_dict is None:
             return
@@ -131,6 +130,7 @@ class DataAnalyser(object):
                     )
                 except Queue.Full:
                     pass
+
         threshold = self.__user_cmd_provider.get_user_preference(
             self.__user_cmd_provider.TEMPERATURE_THRESHOLD
         )
@@ -149,6 +149,7 @@ class DataAnalyser(object):
                     )
                 except Queue.Full:
                     pass
+
         threshold = self.__user_cmd_provider.get_user_preference(
             self.__user_cmd_provider.HUMIDITY_THRESHOLD
         )
