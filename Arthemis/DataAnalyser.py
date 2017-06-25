@@ -17,14 +17,15 @@ class DataAnalyser(object):
         self.__user_cmd_provider = None
         self.__notifications_list = []
         self.__motion_status = False
-        self.__temperature_threshold = None
-        self.__humidity_threshold = None
+        self.__temperature_value = None
+        self.__humidity_value = None
+        self.__gas_value = None
 
     def analyse(self, scanner_data_dict, animations_cmd_queue):
         """
         Analyse the given dictionary
         """
-        self.__update_user_preferences()
+        self.__user_cmd_provider = UserCmdProvider.UserCmdProvider()
 
         if scanner_data_dict is None:
             return
@@ -34,81 +35,55 @@ class DataAnalyser(object):
             value = scanner_data_dict.get('gas')
             if value is not None:
                 if len(value) > 1:
+                    self.__gas_value = int(value[0])
                     gas_threshold = self.__user_cmd_provider.get_user_preference(
                         self.__user_cmd_provider.GAS_THRESHOLD
                     )
                     if gas_threshold is not None:
-                        if int(value[0]) > gas_threshold:
+                        if self.__gas_value > gas_threshold:
                             self.__notifications_list.append(
-                                (RESOURCE_PROVIDER.NC_GAS_ALARM, str(value[1]))
+                                (RESOURCE_PROVIDER.NC_GAS_ALARM_ON, str(value[1]))
                             )
-                            try:
-                                animations_cmd_queue.put(
-                                    RESOURCE_PROVIDER.AC_ACTIVATE_ALARM,
-                                    False
-                                )
-                            except Queue.Full:
-                                pass
                         else:
-                            try:
-                                animations_cmd_queue.put(
-                                    RESOURCE_PROVIDER.AC_DEACTIVATE_ALARM,
-                                    False
-                                )
-                            except Queue.Full:
-                                pass
+                            self.__notifications_list.append(
+                                (RESOURCE_PROVIDER.NC_GAS_ALARM_OFF, str(value[1]))
+                            )
 
             # temperature scenario
             value = scanner_data_dict.get('temperature')
             if value is not None:
                 if len(value) > 1:
+                    self.__temperature_value = float(value[0])
                     temp_threshold = self.__user_cmd_provider.get_user_preference(
                         self.__user_cmd_provider.TEMPERATURE_THRESHOLD
                     )
                     if temp_threshold is not None:
-                        if float(value[0]) > temp_threshold:
+                        if self.__temperature_value > temp_threshold:
                             self.__notifications_list.append(
                                 (RESOURCE_PROVIDER.NC_TEMPERATURE_HIGHER, str(value[1]))
                             )
-                            try:
-                                animations_cmd_queue.put(
-                                    RESOURCE_PROVIDER.AC_TEMPERATURE_WARNING_ON
-                                )
-                            except Queue.Full:
-                                pass
                         else:
-                            try:
-                                animations_cmd_queue.put(
-                                    RESOURCE_PROVIDER.AC_TEMPERATURE_WARNING_OFF
-                                )
-                            except Queue.Full:
-                                pass
+                            self.__notifications_list.append(
+                                (RESOURCE_PROVIDER.NC_TEMPERATURE_NORMAL, str(value[1]))
+                            )
 
             # humidity scenario
             value = scanner_data_dict.get('humidity')
             if value is not None:
                 if len(value) > 1:
+                    self.__humidity_value = float(value[0])
                     temp_threshold = self.__user_cmd_provider.get_user_preference(
                         self.__user_cmd_provider.HUMIDITY_THRESHOLD
                     )
                     if temp_threshold is not None:
-                        if float(value[0]) > temp_threshold:
+                        if self.__humidity_value > temp_threshold:
                             self.__notifications_list.append(
                                 (RESOURCE_PROVIDER.NC_HUMIDITY_HIGHER, str(value[1]))
                             )
-                            try:
-                                animations_cmd_queue.put(
-                                    RESOURCE_PROVIDER.AC_HUMIDITY_WARNING_ON
-                                )
-                            except Queue.Full:
-                                pass
                         else:
-                            try:
-                                animations_cmd_queue.put(
-                                    RESOURCE_PROVIDER.AC_HUMIDITY_WARNING_OFF
-                                )
-                            except Queue.Full:
-                                pass
+                            self.__notifications_list.append(
+                                (RESOURCE_PROVIDER.NC_HUMIDITY_NORMAL, str(value[1]))
+                            )
 
             # motion scenario
             value = scanner_data_dict.get('motion')
@@ -132,14 +107,66 @@ class DataAnalyser(object):
                         except Queue.Full:
                             pass
 
-    def __update_user_preferences(self):
-        self.__user_cmd_provider = UserCmdProvider.UserCmdProvider()
-        self.__temperature_threshold = self.__user_cmd_provider.get_user_preference(
+    def update_animations(self, animations_cmd_queue):
+        """
+        verify constantly to make animations acording to user settings
+        """
+        threshold = self.__user_cmd_provider.get_user_preference(
+            self.__user_cmd_provider.GAS_THRESHOLD
+        )
+        if threshold is not None and self.__gas_value is not None:
+            if self.__gas_value > threshold:
+                try:
+                    animations_cmd_queue.put(
+                        RESOURCE_PROVIDER.AC_ACTIVATE_ALARM,
+                        False
+                    )
+                except Queue.Full:
+                    pass
+            else:
+                try:
+                    animations_cmd_queue.put(
+                        RESOURCE_PROVIDER.AC_DEACTIVATE_ALARM,
+                        False
+                    )
+                except Queue.Full:
+                    pass
+        threshold = self.__user_cmd_provider.get_user_preference(
             self.__user_cmd_provider.TEMPERATURE_THRESHOLD
         )
-        self.__humidity_threshold = self.__user_cmd_provider.get_user_preference(
+        if threshold is not None and self.__temperature_value is not None:
+            if float(self.__temperature_value) > threshold:
+                try:
+                    animations_cmd_queue.put(
+                        RESOURCE_PROVIDER.AC_TEMPERATURE_WARNING_ON
+                    )
+                except Queue.Full:
+                    pass
+            else:
+                try:
+                    animations_cmd_queue.put(
+                        RESOURCE_PROVIDER.AC_TEMPERATURE_WARNING_OFF
+                    )
+                except Queue.Full:
+                    pass
+        threshold = self.__user_cmd_provider.get_user_preference(
             self.__user_cmd_provider.HUMIDITY_THRESHOLD
         )
+        if threshold is not None and self.__humidity_value is not None:
+            if float(self.__humidity_value) > threshold:
+                try:
+                    animations_cmd_queue.put(
+                        RESOURCE_PROVIDER.AC_HUMIDITY_WARNING_ON
+                    )
+                except Queue.Full:
+                    pass
+            else:
+                try:
+                    animations_cmd_queue.put(
+                        RESOURCE_PROVIDER.AC_HUMIDITY_WARNING_OFF
+                    )
+                except Queue.Full:
+                    pass
 
     def motion_status(self):
         """

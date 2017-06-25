@@ -30,7 +30,12 @@ class AnalyserManager(threading.Thread):
         current_thread = threading.currentThread()
         self.__data_analyser = DataAnalyser.DataAnalyser()
         __thread_timer = time.time()
+        __animation_timer = time.time()
         while getattr(current_thread, 'is_running', True):
+            if time.time() - __animation_timer > 300.0 / 1000.0:
+                self.__data_analyser.update_animations(animations_cmd_queue)
+                __animation_timer = time.time()
+
             if time.time() - __thread_timer > 100.0 / 1000.0:
                 try:
                     scanner_data_dict = scanner_data_queue.get(False)
@@ -42,6 +47,7 @@ class AnalyserManager(threading.Thread):
                 except Queue.Full:
                     pass
                 scanner_data_queue.task_done()
+                __thread_timer = time.time()
 
     def analyse_video(self, mp4_files_queue, analysed_mp4_files_queue):
         """
