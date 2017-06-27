@@ -30,6 +30,14 @@ CAMERA_DURATION : 10000
 SCANNER_DATA : scanner_data
 END_SCANNER_DATA : end_scanner_data
 
+TEMP_HIGHER : Higher temperature.
+TEMP_NORMAL : Temperature normal.
+HUMI_HIGHER : Higher humidity.
+HUMI_NORMAL : Humidity normal.
+MOTION_DETECTED : Motion detected.
+GAS_ALARM_ON : GAS ALARM ENABLED!!!
+GAS_ALARM_OFF : Air is clean.
+
 # this is an example of a dictionary
 #test:
 #- testtitle: test title

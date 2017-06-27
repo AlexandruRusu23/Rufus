@@ -13,23 +13,33 @@ function redirect($url) {
 
 try
 {
-    $conn = new PDO("mysql:host=$servername;dbname=test_create_DB", $username, $password);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+  $conn = new PDO("mysql:host=$servername;dbname=test_create_DB", $username, $password);
+  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    $stmt = $conn->prepare("SELECT Password FROM web_members WHERE Email = '".$_POST['email']."'");
-    $stmt->execute();
+  $stmt = $conn->prepare("SELECT Password FROM web_members WHERE Email = '".$_POST['email']."'");
+  $stmt->execute();
 
-    $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
-    foreach($stmt->fetchAll() as $k=>$v) {
-        if(md5($_POST['password']) == $v['Password'])
-        {
-          redirect("../pages/index.php");
-        }
-        else
-        {
-          redirect("../pages/login.php");
-        }
-}
+  $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+  foreach($stmt->fetchAll() as $k=>$v)
+  {
+    if(md5($_POST['password']) == $v['Password'])
+    {
+      session_start();
+      $stmt = $conn->prepare("SELECT FirstName, LastName FROM web_members WHERE Email = '".$_POST['email']."'");
+      $stmt->execute();
+      $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+      foreach($stmt->fetchAll() as $k=>$v) {
+        $_SESSION['user_email'] = $_POST['email'];
+        $_SESSION['user_first_name'] = $v['FirstName'];
+        $_SESSION['user_last_name'] = $v['LastName'];
+      }
+      redirect("../pages/index.php");
+    }
+    else
+    {
+      redirect("../pages/login.php");
+    }
+  }
 }
 catch(PDOException $e)
 {

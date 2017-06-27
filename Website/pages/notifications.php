@@ -1,5 +1,19 @@
 <?php
 
+function redirect($url) {
+    ob_start();
+    header('Location: '.$url);
+    ob_end_flush();
+    die();
+}
+
+session_start();
+if (!isset($_SESSION['user_email']))
+{
+  redirect("../pages/login.php");
+}
+$account_name = $_SESSION['user_first_name'] .' '. $_SESSION['user_last_name'];
+
 $servername = "localhost";
 $username = "root";
 $password = "internet12";
@@ -12,7 +26,7 @@ try
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     # notifications
-    $stmt = $conn->prepare("SELECT value, time_collected FROM HOME_SCANNER_NOTIFICATIONS ORDER BY TIME_COLLECTED");
+    $stmt = $conn->prepare("SELECT value, time_collected FROM HOME_SCANNER_NOTIFICATIONS ORDER BY TIME_COLLECTED DESC");
     $stmt->execute();
     $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
     foreach($stmt->fetchAll() as $k=>$v) {
@@ -79,7 +93,13 @@ catch(PDOException $e)
 
           <ul class="nav navbar-nav navbar-right">
               <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user-circle-o fa-fw" aria-hidden="true"></i>User Name <i class="fa fa-caret-down" aria-hidden="true"></i></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                  <i class="fa fa-user-circle-o fa-fw" aria-hidden="true"></i>
+                  <?php
+                    echo $account_name;
+                  ?>
+                  <i class="fa fa-caret-down" aria-hidden="true"></i>
+                </a>
                 <ul class="dropdown-menu">
                   <li>
                     <a href="../pages/account.php"><i class="fa fa-user fa-fw" aria-hidden="true"></i> Account</a>
@@ -89,9 +109,10 @@ catch(PDOException $e)
                   </li>
                   <li role="separator" class="divider"></li>
                   <li>
-                    <form>
-                      <button type="submit" class="btn btn-link btn-logout"><i class="fa fa-sign-out" aria-hidden="true"></i> Logout</button>
-                    </form>
+                    <a href="../php/logoutManager.php">
+                      <i class="fa fa-sign-out" aria-hidden="true"></i>
+                      Logout
+                    </a>
                   </li>
                 </ul>
               </li>
@@ -114,21 +135,47 @@ catch(PDOException $e)
                               <?php
                                 foreach ($notificationsList as $key => $value) {
                                   $iconType = "fa-warning";
+                                  $notificationMessage = "";
                                   if (strpos($value, 'MOTION') !== false)
                                   {
                                     $iconType = "fa-eye";
+                                    $notificationMessage = "Motion detected.";
                                   }
                                   if (strpos($value, 'TEMP') !== false)
                                   {
                                     $iconType = "fa-thermometer-empty";
+                                    if (strpos($value, 'HIGHER') !== false)
+                                    {
+                                      $notificationMessage = "Higher temperature!";
+                                    }
+                                    else {
+                                      $notificationMessage = "Temperature stable.";
+                                    }
                                   }
                                   if (strpos($value, 'HUMI') !== false)
                                   {
                                     $iconType = "fa-tint";
+                                    if (strpos($value, 'HIGHER') !== false)
+                                    {
+                                      $notificationMessage = "Higher humidity!";
+                                    }
+                                    else {
+                                      $notificationMessage = "Humidity stable.";
+                                    }
+                                  }
+                                  if (strpos($value, 'GAS') !== false)
+                                  {
+                                    if (strpos($value, 'ON') !== false)
+                                    {
+                                      $notificationMessage = "GAS ALARM ENABLED!!!";
+                                    }
+                                    else {
+                                      $notificationMessage = "Air is clean.";
+                                    }
                                   }
                                   echo "
                                     <a href=\"#\" class=\"list-group-item\">
-                                        <i class=\"fa $iconType fa-fw\"></i> $value
+                                        <i class=\"fa $iconType fa-fw\"></i> $notificationMessage
                                         <span class=\"pull-right text-muted small\"><em>$key</em>
                                         </span>
                                     </a>

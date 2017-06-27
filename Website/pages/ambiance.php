@@ -1,5 +1,19 @@
 <?php
 
+function redirect($url) {
+    ob_start();
+    header('Location: '.$url);
+    ob_end_flush();
+    die();
+}
+
+session_start();
+if (!isset($_SESSION['user_email']))
+{
+  redirect("../pages/login.php");
+}
+$account_name = $_SESSION['user_first_name'] .' '. $_SESSION['user_last_name'];
+
 $servername = "localhost";
 $username = "root";
 $password = "internet12";
@@ -9,6 +23,12 @@ $humidityValue = 0;
 $gasValue = 0;
 $lightValue = 0;
 $motionValue = 0;
+
+$temperatureArray = array();
+$humidityArray = array();
+$gasArray = array();
+$lightArray = array();
+$motionArray = array();
 
 try
 {
@@ -54,6 +74,44 @@ try
     foreach($stmt->fetchAll() as $k=>$v) {
         $motionValue = $v['value'];
     }
+
+    $stmt = $conn->prepare("SELECT value, time_collected FROM HOME_SCANNER_DATABASE_TEMPERATURE WHERE TIME_COLLECTED > DATE_SUB(NOW(), INTERVAL 7*24 HOUR)");
+    $stmt->execute();
+    $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    foreach($stmt->fetchAll() as $k=>$v) {
+        $temperatureArray[(string)$v['time_collected']] = (string)$v['value'];
+    }
+
+    $stmt = $conn->prepare("SELECT value, time_collected FROM HOME_SCANNER_DATABASE_HUMIDITY WHERE TIME_COLLECTED > DATE_SUB(NOW(), INTERVAL 7*24 HOUR)");
+    $stmt->execute();
+    $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    foreach($stmt->fetchAll() as $k=>$v) {
+        $humidityArray[(string)$v['time_collected']] = (string)$v['value'];
+    }
+
+    $stmt = $conn->prepare("SELECT value, time_collected FROM HOME_SCANNER_DATABASE_GAS_RECORD WHERE TIME_COLLECTED > DATE_SUB(NOW(), INTERVAL 7*24 HOUR)");
+    $stmt->execute();
+    $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    foreach($stmt->fetchAll() as $k=>$v) {
+        $gasArray[(string)$v['time_collected']] = (string)$v['value'];
+    }
+
+    $stmt = $conn->prepare("SELECT value, time_collected FROM HOME_SCANNER_DATABASE_LIGHT WHERE TIME_COLLECTED > DATE_SUB(NOW(), INTERVAL 7*24 HOUR)");
+    $stmt->execute();
+    $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    foreach($stmt->fetchAll() as $k=>$v) {
+        $lightArray[(string)$v['time_collected']] = (string)$v['value'];
+    }
+
+    #SELECT * FROM `HOME_SCANNER_DATABASE_MOTION` WHERE TIME_COLLECTED > DATE_SUB(NOW(), INTERVAL 7*24 HOUR)
+
+    $stmt = $conn->prepare("SELECT value, time_collected FROM HOME_SCANNER_DATABASE_MOTION ORDER BY time_collected DESC LIMIT 50");
+    $stmt->execute();
+    $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    foreach($stmt->fetchAll() as $k=>$v) {
+        $motionArray[(string)$v['time_collected']] = (string)$v['value'];
+    }
+    $motionArray = array_reverse($motionArray);
 }
 catch(PDOException $e)
 {
@@ -62,7 +120,6 @@ catch(PDOException $e)
 }
 
 ?>
-
 
 <html>
 <head>
@@ -74,7 +131,138 @@ catch(PDOException $e)
   <link rel="stylesheet" href="../css/style.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  <script src="js/script.js"></script>
+
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript">
+
+    function showChart(id)
+    {
+      google.charts.load('current', {'packages':['corechart']});
+      if (id == 0)
+      {
+        google.charts.setOnLoadCallback(drawTemperatureChart);
+      }
+      else if (id == 1) {
+        google.charts.setOnLoadCallback(drawHumidityChart);
+      }
+      else if (id == 2) {
+        google.charts.setOnLoadCallback(drawGasChart);
+      }
+      else if (id == 3) {
+        google.charts.setOnLoadCallback(drawLightChart);
+      }
+      else if (id == 4) {
+        google.charts.setOnLoadCallback(drawMotionChart);
+      }
+    }
+
+    function drawTemperatureChart() {
+      var data = google.visualization.arrayToDataTable([
+        ['Date', 'Temperature'],
+        <?php
+        foreach ($temperatureArray as $key => $value)
+        {
+          echo '["'.$key.'",'.$value.'],';
+        }
+        ?>
+      ]);
+
+      var options = {
+        title: 'Temperature Evolution',
+        hAxis: {title: 'Date',  titleTextStyle: {color: '#333'}},
+        vAxis: {minValue: 0}
+      };
+
+      var chart = new google.visualization.AreaChart(document.getElementById('chart_data'));
+      chart.draw(data, options);
+    }
+
+    function drawHumidityChart() {
+      var data = google.visualization.arrayToDataTable([
+        ['Date', 'Humidity'],
+        <?php
+        foreach ($humidityArray as $key => $value)
+        {
+          echo '["'.$key.'",'.$value.'],';
+        }
+        ?>
+      ]);
+
+      var options = {
+        title: 'Humidity Evolution',
+        hAxis: {title: 'Date',  titleTextStyle: {color: '#333'}},
+        vAxis: {minValue: 0}
+      };
+
+      var chart = new google.visualization.AreaChart(document.getElementById('chart_data'));
+      chart.draw(data, options);
+    }
+
+    function drawGasChart() {
+      var data = google.visualization.arrayToDataTable([
+        ['Date', 'Gas'],
+        <?php
+        foreach ($gasArray as $key => $value)
+        {
+          echo '["'.$key.'",'.$value.'],';
+        }
+        ?>
+      ]);
+
+      var options = {
+        title: 'Smoke & Gas Evolution',
+        hAxis: {title: 'Date',  titleTextStyle: {color: '#333'}},
+        vAxis: {minValue: 0}
+      };
+
+      var chart = new google.visualization.AreaChart(document.getElementById('chart_data'));
+      chart.draw(data, options);
+    }
+
+    function drawLightChart() {
+      var data = google.visualization.arrayToDataTable([
+        ['Date', 'Gas'],
+        <?php
+        foreach ($lightArray as $key => $value)
+        {
+          echo '["'.$key.'",'.$value.'],';
+        }
+        ?>
+      ]);
+
+      var options = {
+        title: 'Light Intensity Evolution',
+        hAxis: {title: 'Date',  titleTextStyle: {color: '#333'}},
+        vAxis: {minValue: 0}
+      };
+
+      var chart = new google.visualization.AreaChart(document.getElementById('chart_data'));
+      chart.draw(data, options);
+    }
+
+    function drawMotionChart() {
+      var data = google.visualization.arrayToDataTable([
+        ['Date', 'Motion'],
+        <?php
+        foreach ($motionArray as $key => $value)
+        {
+          echo '["'.$key.'",'.$value.'],';
+        }
+        ?>
+      ]);
+
+      var options = {
+        title: 'Motion Activity Tracker',
+        hAxis: {title: 'Date',  titleTextStyle: {color: '#333'}},
+        vAxis: {minValue: 0}
+      };
+
+      var chart = new google.visualization.AreaChart(document.getElementById('chart_data'));
+      chart.draw(data, options);
+    }
+
+  </script>
+
 </head>
 
 <body>
@@ -117,7 +305,13 @@ catch(PDOException $e)
 
           <ul class="nav navbar-nav navbar-right">
               <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user-circle-o fa-fw" aria-hidden="true"></i>User Name <i class="fa fa-caret-down" aria-hidden="true"></i></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                  <i class="fa fa-user-circle-o fa-fw" aria-hidden="true"></i>
+                  <?php
+                    echo $account_name;
+                  ?>
+                  <i class="fa fa-caret-down" aria-hidden="true"></i>
+                </a>
                 <ul class="dropdown-menu">
                   <li>
                     <a href="../pages/account.php"><i class="fa fa-user fa-fw" aria-hidden="true"></i> Account</a>
@@ -127,9 +321,10 @@ catch(PDOException $e)
                   </li>
                   <li role="separator" class="divider"></li>
                   <li>
-                    <form>
-                      <button type="submit" class="btn btn-link btn-logout"><i class="fa fa-sign-out" aria-hidden="true"></i> Logout</button>
-                    </form>
+                    <a href="../php/logoutManager.php">
+                      <i class="fa fa-sign-out" aria-hidden="true"></i>
+                      Logout
+                    </a>
                   </li>
                 </ul>
               </li>
@@ -164,7 +359,7 @@ catch(PDOException $e)
                                 </div>
                             </div>
                         </div>
-                        <a href="../pages/ambiance.php">
+                        <a href=# onclick="showChart(0)">
                             <div class="panel-footer panel-success">
                                 <span class="pull-left text-success">View Details</span>
                                 <span class="pull-right text-success"><i class="fa fa-arrow-circle-right fa-2x"></i></span>
@@ -193,7 +388,7 @@ catch(PDOException $e)
                                 </div>
                             </div>
                         </div>
-                        <a href="../pages/ambiance.php">
+                        <a href=# onclick="showChart(1)">
                             <div class="panel-footer panel-primary">
                                 <span class="pull-left text-primary">View Details</span>
                                 <span class="pull-right text-primary"><i class="fa fa-arrow-circle-right fa-2x"></i></span>
@@ -222,7 +417,7 @@ catch(PDOException $e)
                                 </div>
                             </div>
                         </div>
-                        <a href="../pages/ambiance.php">
+                        <a href=# onclick="showChart(2)">
                             <div class="panel-footer panel-danger">
                                 <span class="pull-left text-danger">View Details</span>
                                 <span class="pull-right text-danger"><i class="fa fa-arrow-circle-right fa-2x"></i></span>
@@ -251,7 +446,7 @@ catch(PDOException $e)
                                 </div>
                             </div>
                         </div>
-                        <a href="../pages/ambiance.php">
+                        <a href=# onclick="showChart(3)">
                             <div class="panel-footer panel-warning">
                                 <span class="pull-left text-warning">View Details</span>
                                 <span class="pull-right text-warning"><i class="fa fa-arrow-circle-right fa-2x"></i></span>
@@ -285,7 +480,7 @@ catch(PDOException $e)
                                 </div>
                             </div>
                         </div>
-                        <a href="../pages/ambiance.php">
+                        <a href=# onclick="showChart(4)">
                             <div class="panel-footer panel-info">
                                 <span class="pull-left text-info">View Details</span>
                                 <span class="pull-right text-info"><i class="fa fa-arrow-circle-right fa-2x"></i></span>
@@ -296,6 +491,8 @@ catch(PDOException $e)
                 </div>
             </div>
             <!-- /.row -->
+            <div id="chart_data" style="width: 100%; height: 700px;"></div>
+
         </div>
 
     </div>

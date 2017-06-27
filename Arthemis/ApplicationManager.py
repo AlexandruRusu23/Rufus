@@ -188,5 +188,8 @@ class ApplicationManager(threading.Thread):
                 except Queue.Empty:
                     continue
                 for elem in notifications:
-                    __database_manager.insert_data_in_database(elem, 'HOME_SCANNER_NOTIFICATIONS')
+                    __database_manager.insert_data_in_database(
+                        elem,
+                        'HOME_SCANNER_NOTIFICATIONS'
+                    )
                 notifications_queue.task_done()
