@@ -98,6 +98,37 @@ $account_name = $_SESSION['user_first_name'] .' '. $_SESSION['user_last_name'];
         <!-- /.container-fluid -->
       </nav>
       <!-- /.navbar -->
+      <div class="row">
+        <div class="col-md-4 col-md-offset-4">
+          <div id="registerBlock" class="login-panel panel panel-default">
+              <div class="panel-heading">
+                  <h3 class="panel-title">Update your account details.</h3>
+              </div>
+              <div class="panel-body">
+                  <form role="form" method="post" action="../php/accountManager.php">
+                      <fieldset>
+                          <div class="form-group">
+                              <input class="form-control" placeholder="First Name" name="firstName" type="text" autofocus>
+                          </div>
+                          <div class="form-group">
+                              <input class="form-control" placeholder="Last Name" name="lastName" type="text">
+                          </div>
+                          <div class="form-group">
+                              <input class="form-control" placeholder="E-mail" name="email" type="email">
+                          </div>
+                          <div class="form-group">
+                              <input class="form-control" placeholder="Password" name="password" type="password" value="">
+                          </div>
+                          <div class="form-group">
+                              <input class="form-control" placeholder="Repeat Password" name="repeatPassword" type="password" value="">
+                          </div>
+                          <button type="submit" class="btn btn-lg btn-success btn-block">Update</button>
+                      </fieldset>
+                  </form>
+              </div>
+            </div>
+          </div>
+        </div>
 
     </div>
 
