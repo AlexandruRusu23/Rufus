@@ -26,7 +26,7 @@ try
     {
       session_start();
       $_SESSION['user_id'] = $v['Id'];
-      $_SESSION['user_email'] = $_POST['Email'];
+      $_SESSION['user_email'] = $_POST['email'];
       $_SESSION['user_first_name'] = $v['FirstName'];
       $_SESSION['user_last_name'] = $v['LastName'];
       redirect("../pages/index.php");

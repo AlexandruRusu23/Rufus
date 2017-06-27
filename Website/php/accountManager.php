@@ -18,8 +18,8 @@ if(md5($_POST['password']) == md5($_POST['repeatPassword']) && strlen($_POST['pa
       $conn = new PDO("mysql:host=$servername;dbname=test_create_DB", $username, $password);
       // set the PDO error mode to exception
       $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $sql = "UPDATE web_members SET FirstName = ".$_POST['firstName'].", LastName = ".$_POST['lastName'].", Email = ".$_POST['email'].", Password = ".$_POST['password']."
-      WHERE Id = ".$_SESSION['user_id'];
+      $sql = "UPDATE `web_members` SET `FirstName` = '".$_POST['firstName']."', `LastName` = '".$_POST['lastName']."', `Email` = '".$_POST['email']."', `Password` = '".md5($_POST['password'])."'
+      WHERE `Id` = '".$_SESSION['user_id']."'";
       // use exec() because no results are returned
       $conn->exec($sql);
   }
@@ -32,7 +32,7 @@ if(md5($_POST['password']) == md5($_POST['repeatPassword']) && strlen($_POST['pa
   $_SESSION['user_last_name'] = $_POST['lastName'];
   $_SESSION['user_email'] = $_POST['email'];
 
-  header("Location:../pages/index.php");
+  header("Location:../pages/account.php");
 }
 else
 {

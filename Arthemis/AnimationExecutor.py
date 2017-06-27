@@ -42,7 +42,8 @@ class AnimationExecutor(threading.Thread):
         self.__warning_type_lock = threading.Lock()
 
         self.__thread_timer = 0
-        self.__animation_timer = 0
+        self.__superviser_timer = 0
+        self.__warning_timer = 0
 
         self.__serial_manager = None
         self.__serial_lock = threading.Lock()
@@ -76,6 +77,8 @@ class AnimationExecutor(threading.Thread):
         self.__alarm_thread.start()
 
         self.__thread_timer = time.time()
+        self.__warning_timer = time.time()
+        self.__superviser_timer = time.time()
 
         while True:
             if time.time() - self.__thread_timer > 1000.0 / 1000.0:
@@ -91,7 +94,16 @@ class AnimationExecutor(threading.Thread):
 
                 self.__thread_timer = time.time()
 
-            if time.time() - self.__animation_timer > 100.0 / 1000.0:
+            if time.time() - self.__warning_timer > 100.0 / 1000.0:
+                # warning animations
+                self.__warning_type_lock.acquire()
+                warning_type = self.__warning_type
+                self.__warning_type_lock.release()
+                if warning_type is not None:
+                    self.__warning_animation(warning_type)
+                self.__warning_timer = time.time()
+
+            if time.time() - self.__superviser_timer > 100.0 / 1000.0:
                 try:
                     animation = self.__animations_queue.get(False)
                 except Queue.Empty:
@@ -101,7 +113,8 @@ class AnimationExecutor(threading.Thread):
                         self.__update_alarm_status(animation[1])
                     else: # warning type
                         self.__update_warning_animation(animation[1])
-                self.__animation_timer = time.time()
+                self.__animations_queue.task_done()
+                self.__superviser_timer = time.time()
 
         self.__alarm_thread.is_running = False
         self.__alarm_thread.join()
@@ -193,14 +206,14 @@ class AnimationExecutor(threading.Thread):
         current_thread = threading.currentThread()
         __thread_timer = time.time()
         while getattr(current_thread, 'is_running', True):
-            if time.time() - __thread_timer > 200.0 / 1000.0:
-                __thread_timer = time.time()
+            if time.time() - __thread_timer > 300.0 / 1000.0:
                 self.__alarm_enabled_lock.acquire()
                 alarm_cond = self.__alarm_enabled
                 self.__alarm_enabled_lock.release()
 
+                __thread_timer = time.time()
+
                 if bool(alarm_cond) is False:
-                    self.__light_one_rgb_color(AnimationExecutor._RED_COLOR, 0)
                     self.__light_mode_color(AnimationExecutor._RED_MODE, AnimationExecutor._OFF)
                     continue
 
@@ -232,25 +245,20 @@ class AnimationExecutor(threading.Thread):
             self.__turn_all_off()
             return
 
-        # warning animations
-        self.__warning_type_lock.acquire()
-        warning_type = self.__warning_type
-        self.__warning_type_lock.release()
-        if warning_type is not None:
-            self.__warning_animation(warning_type)
+        light_number = int((random.random() * 10) % 3)
 
-        self.__light_one_rgb_color(
-            AnimationExecutor._GREEN_COLOR,
-            int((random.random() * 1000) % 254)
-        )
-        time.sleep(300.0 / 1000.0)
-        self.__light_one_rgb_color(
-            AnimationExecutor._BLUE_COLOR,
-            int((random.random() * 1000) % 254)
-        )
-        time.sleep(300.0 / 1000.0)
-        self.__light_one_rgb_color(
-            AnimationExecutor._RED_COLOR,
-            int((random.random() * 1000) % 254)
-        )
-        time.sleep(300.0 / 1000.0)
+        if light_number == 0:
+            self.__light_one_rgb_color(
+                AnimationExecutor._GREEN_COLOR,
+                int((random.random() * 1000) % 254)
+            )
+        elif light_number == 1:
+            self.__light_one_rgb_color(
+                AnimationExecutor._BLUE_COLOR,
+                int((random.random() * 1000) % 254)
+            )
+        elif light_number == 2:
+            self.__light_one_rgb_color(
+                AnimationExecutor._RED_COLOR,
+                int((random.random() * 1000) % 254)
+            )

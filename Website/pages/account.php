@@ -14,6 +14,10 @@ if (!isset($_SESSION['user_email']))
 }
 $account_name = $_SESSION['user_first_name'] .' '. $_SESSION['user_last_name'];
 
+$user_first_name = $_SESSION['user_first_name'];
+$user_last_name = $_SESSION['user_last_name'];
+$user_email = $_SESSION['user_email'];
+
 ?>
 
 <html>
@@ -108,13 +112,13 @@ $account_name = $_SESSION['user_first_name'] .' '. $_SESSION['user_last_name'];
                   <form role="form" method="post" action="../php/accountManager.php">
                       <fieldset>
                           <div class="form-group">
-                              <input class="form-control" placeholder="First Name" name="firstName" type="text" autofocus>
+                              <input class="form-control" placeholder="First Name" name="firstName" type="text" value="<?php echo $user_first_name ?>" autofocus>
                           </div>
                           <div class="form-group">
-                              <input class="form-control" placeholder="Last Name" name="lastName" type="text">
+                              <input class="form-control" placeholder="Last Name" name="lastName" value="<?php echo $user_last_name ?>" type="text">
                           </div>
                           <div class="form-group">
-                              <input class="form-control" placeholder="E-mail" name="email" type="email">
+                              <input class="form-control" placeholder="E-mail" name="email" value="<?php echo $user_email ?>" type="email">
                           </div>
                           <div class="form-group">
                               <input class="form-control" placeholder="Password" name="password" type="password" value="">
