@@ -63,6 +63,7 @@ class ScannerDataProvider(threading.Thread):
 
         self.__serial_manager.stop()
         self.__serial_manager.join()
+        print '[Scanner Data Provider] serial_manager stopped '
 
     def stop(self):
         """

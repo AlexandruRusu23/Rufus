@@ -36,8 +36,8 @@ class AnimationManager(object):
                 while getattr(current_thread, 'is_running', True):
                     if bool(self.__animation_executor.execute(str(animation))) is True:
                         break
-                    time.sleep(0.05)
                 animations_queue.task_done()
                 __thread_timer = time.time()
         self.__animation_executor.stop()
         self.__animation_executor.join()
+        print '[Animation Manager] animation_executor stopped '

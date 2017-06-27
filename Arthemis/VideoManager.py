@@ -69,8 +69,10 @@ class VideoManager(threading.Thread):
 
         self.__recorder_thread.is_running = False
         self.__recorder_thread.join()
+        print '[Video Manager] recorder_manager stopped '
         self.__convert_thread.is_running = False
         self.__convert_thread.join()
+        print '[Video Manager] convert_manager stopped '
 
     def stop(self):
         """
@@ -115,6 +117,7 @@ class VideoManager(threading.Thread):
 
                 self.__video_camera.stop()
                 self.__video_camera.join()
+                print '[Video Manager] video_camera stopped '
 
                 while getattr(current_thread, 'is_running', True):
                     try:

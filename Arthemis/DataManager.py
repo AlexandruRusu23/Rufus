@@ -53,6 +53,7 @@ class DataManager(threading.Thread):
         # Wait for the threads to stop
         self.__scanner_data_provider.stop()
         self.__scanner_data_provider.join()
+        print '[Data Manager] scanner_data_provider stopped '
 
     def stop(self):
         """

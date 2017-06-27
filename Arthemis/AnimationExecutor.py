@@ -118,6 +118,7 @@ class AnimationExecutor(threading.Thread):
 
         self.__alarm_thread.is_running = False
         self.__alarm_thread.join()
+        print '[Animation Executor] alarm_thread stopped '
         self.__turn_all_off()
 
     def stop(self):

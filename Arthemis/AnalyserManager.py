@@ -32,7 +32,7 @@ class AnalyserManager(threading.Thread):
         __thread_timer = time.time()
         __animation_timer = time.time()
         while getattr(current_thread, 'is_running', True):
-            if time.time() - __animation_timer > 300.0 / 1000.0:
+            if time.time() - __animation_timer > 600.0 / 1000.0:
                 self.__data_analyser.update_animations(animations_cmd_queue)
                 __animation_timer = time.time()
 

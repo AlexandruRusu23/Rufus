@@ -140,30 +140,39 @@ class ApplicationManager(threading.Thread):
         # wait for every thread to finish their work
         self.__data_manager.stop()
         self.__data_manager.join()
+        print '[Application Manager] data_manager stopped '
 
         self.__video_manager.stop()
         self.__video_manager.join()
+        print '[Application Manager] video_manager stopped '
 
         self.__data_receive_thread.is_running = False
         self.__data_receive_thread.join()
+        print '[Application Manager] data_receive_thread stopped '
 
         self.__video_receive_thread.is_running = False
         self.__video_receive_thread.join()
+        print '[Application Manager] video_receive_thread stopped '
 
         self.__data_transfer_thread.is_running = False
         self.__data_transfer_thread.join()
+        print '[Application Manager] data_transfer_thread stopped '
 
         self.__video_transfer_thread.is_running = False
         self.__video_transfer_thread.join()
+        print '[Application Manager] video_transfer_thread stopped '
 
         self.__transfer_analysed_thread.is_running = False
         self.__transfer_analysed_thread.join()
+        print '[Application Manager] transfer_analysed_thread stopped '
 
         self.__notifications_thread.is_running = False
         self.__notifications_thread.join()
+        print '[Application Manager] notifications_thread stopped '
 
         self.__animations_thread.is_running = False
         self.__animations_thread.join()
+        print '[Application Manager] animations_thread stopped '
 
     def stop(self):
         """
