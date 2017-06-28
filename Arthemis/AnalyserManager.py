@@ -47,6 +47,7 @@ class AnalyserManager(threading.Thread):
         __thread_timer = time.time()
         while getattr(current_thread, 'is_running', True):
             if time.time() - __thread_timer > 100.0 / 1000.0:
+                __thread_timer = time.time()
                 try:
                     scanner_data_dict = scanner_data_queue.get(False)
                 except Queue.Empty:
@@ -57,7 +58,6 @@ class AnalyserManager(threading.Thread):
                 except Queue.Full:
                     pass
                 scanner_data_queue.task_done()
-                __thread_timer = time.time()
 
         self.__data_analyse_thread.is_running = False
         self.__data_analyse_thread.join()

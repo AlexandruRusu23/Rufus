@@ -133,4 +133,5 @@ class DataManager(threading.Thread):
                             time.sleep(0.1)
                             continue
                         break
+                    print '[DataManager] -- receive_scanner_data --' + str(output)
                 __thread_timer = time.time()
