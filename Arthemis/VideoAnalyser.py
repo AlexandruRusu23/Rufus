@@ -2,10 +2,11 @@
 MP4 Video Analyser module
 """
 
+import sys
+import argparse
 import os
 import cv2
 import numpy
-import sys
 import ResourceProvider
 
 RESOURCE_PROVIDER = ResourceProvider.ResourceProvider()
@@ -139,3 +140,27 @@ class VideoAnalyser(object):
                     2
                 )
             self.__faces_positions = []
+
+if __name__ == "__main__":
+    VIDEO_ANALYSER = VideoAnalyser()
+
+    PARSER = argparse.ArgumentParser()
+    PARSER.add_argument('--face', default=0, help='enable/disable face recognition')
+    PARSER.add_argument('--motion', default=0, help='enable/disable motion detection')
+    PARSER.add_argument('--human', default=0, help='enable/disable human recognition')
+    PARSER.add_argument('--file', default="", help='mp4 video file name + extension')
+    ARGS = PARSER.parse_args(args=sys.argv[1:])
+    ARGS_DICT = vars(ARGS)
+    FACE = ARGS_DICT.get('face')
+    if FACE is not None:
+        VIDEO_ANALYSER.enable_face_recognition(int(FACE))
+    MOTION = ARGS_DICT.get('motion')
+    if MOTION is not None:
+        VIDEO_ANALYSER.enable_motion_detection(int(MOTION))
+    HUMAN = ARGS_DICT.get('human')
+    if HUMAN is not None:
+        VIDEO_ANALYSER.enable_human_recognition(int(HUMAN))
+
+    FILE_NAME = ARGS_DICT.get('file')
+    if len(str(FILE_NAME)) > 0:
+        VIDEO_ANALYSER.apply_detections(str(FILE_NAME))

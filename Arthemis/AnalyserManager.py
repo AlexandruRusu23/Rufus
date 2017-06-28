@@ -2,10 +2,10 @@
 Analyser Manager module
 """
 
+import subprocess
 import time
 import threading
 import Queue
-import VideoAnalyser
 import DataAnalyser
 import ResourceProvider
 import UserCmdProvider
@@ -20,7 +20,6 @@ class AnalyserManager(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
 
-        self.__video_analyser = None
         self.__data_analyser = None
 
         self.__data_analyse_thread = None
@@ -72,7 +71,6 @@ class AnalyserManager(threading.Thread):
         analyse the mp4 files getting the name from an extern queue
         """
         current_thread = threading.currentThread()
-        self.__video_analyser = VideoAnalyser.VideoAnalyser()
         __user_cmd_provider = UserCmdProvider.UserCmdProvider()
         __thread_timer = time.time()
         while getattr(current_thread, 'is_running', True):
@@ -83,28 +81,43 @@ class AnalyserManager(threading.Thread):
                 except Queue.Empty:
                     continue
 
+                video_analyse_cmd = ["python VideoAnalyser.py"]
+                video_analyse_cmd.append("--file")
+                video_analyse_cmd.append(str(file_name))
+
                 # face detection
                 condition = __user_cmd_provider.get_user_preference(
                     __user_cmd_provider.FACE_DETECTION_ENABLED
                 )
                 if condition is not None:
-                    self.__video_analyser.enable_face_recognition(int(condition))
+                    video_analyse_cmd.append("--face")
+                    video_analyse_cmd.append(str(condition))
 
                 # motion detection
                 condition = __user_cmd_provider.get_user_preference(
                     __user_cmd_provider.MOTION_DETECTION_ENABLED
                 )
                 if condition is not None:
-                    self.__video_analyser.enable_motion_detection(int(condition))
+                    video_analyse_cmd.append("--motion")
+                    video_analyse_cmd.append(str(condition))
 
                 # human detection
                 condition = __user_cmd_provider.get_user_preference(
                     __user_cmd_provider.HUMAN_DETECTION_ENABLED
                 )
                 if condition is not None:
-                    self.__video_analyser.enable_human_recognition(int(condition))
+                    video_analyse_cmd.append("--human")
+                    video_analyse_cmd.append(str(condition))
 
-                self.__video_analyser.apply_detections(file_name)
+                analyse_video_process = subprocess.Popen(video_analyse_cmd)
+
+                while analyse_video_process.poll() is None:
+                    if getattr(current_thread, 'is_running', False):
+                        break
+                    time.sleep(0.1)
+
+                if bool(analyse_video_process.poll()) is True:
+                    analyse_video_process.kill()
 
                 while getattr(current_thread, 'is_running', True):
                     try:
