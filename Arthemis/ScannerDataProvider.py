@@ -58,7 +58,9 @@ class ScannerDataProvider(threading.Thread):
                 self.__thread_timer = time.time()
 
             if time.time() - self.__data_timer > 100.0/1000.0:
-                self.__store_data(self.__serial_manager.get_scanner_data())
+                data_dict = self.__serial_manager.get_scanner_data()
+                if len(data_dict) > 0:
+                    self.__store_data(data_dict)
                 self.__data_timer = time.time()
 
         self.__serial_manager.stop()

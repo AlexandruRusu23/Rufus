@@ -81,7 +81,8 @@ class AnalyserManager(threading.Thread):
                 except Queue.Empty:
                     continue
 
-                video_analyse_cmd = ["python VideoAnalyser.py"]
+                video_analyse_cmd = ["python"]
+                video_analyse_cmd.append("VideoAnalyser.py")
                 video_analyse_cmd.append("--file")
                 video_analyse_cmd.append(str(file_name))
 
@@ -108,6 +109,8 @@ class AnalyserManager(threading.Thread):
                 if condition is not None:
                     video_analyse_cmd.append("--human")
                     video_analyse_cmd.append(str(condition))
+
+                print video_analyse_cmd
 
                 analyse_video_process = subprocess.Popen(video_analyse_cmd)
 
