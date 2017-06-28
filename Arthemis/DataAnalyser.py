@@ -18,8 +18,6 @@ class DataAnalyser(object):
         self.__notifications_list = []
         self.__notifications_list_lock = threading.Lock()
 
-        self.__motion_status = False
-
         self.__temperature_value = None
         self.__temperature_value_changed = None
         self.__temperature_value_lock = threading.Lock()
@@ -266,7 +264,14 @@ class DataAnalyser(object):
         """
         returns True if motion has been detected and False otherwise
         """
-        return self.__motion_status
+        output = 0
+        self.__motion_value_lock.acquire()
+        if self.__motion_value is not None:
+            output = int(self.__motion_value[0])
+        self.__motion_value_lock.release()
+        if output > 0:
+            return True
+        return False
 
     def get_notifications(self):
         """

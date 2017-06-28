@@ -19,6 +19,18 @@ class Recorder(threading.Thread):
 
         #setup the raspivid cmd
         self.__raspividcmd = RASPIVIDCMD
+        self.__raspividcmd.append("-w")
+        self.__raspividcmd.append(
+            RESOURCE_PROVIDER.get_string_table(
+                RESOURCE_PROVIDER.CAMERA_RESOLUTION_WIDTH
+            )
+        )
+        self.__raspividcmd.append("-h")
+        self.__raspividcmd.append(
+            RESOURCE_PROVIDER.get_string_table(
+                RESOURCE_PROVIDER.CAMERA_RESOLUTION_HEIGHT
+            )
+        )
 
         #add file path, timeout and preview to options
         self.__raspividcmd.append("-o")

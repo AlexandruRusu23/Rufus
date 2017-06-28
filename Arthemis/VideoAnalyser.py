@@ -6,6 +6,9 @@ import os
 import cv2
 import numpy
 import sys
+import ResourceProvider
+
+RESOURCE_PROVIDER = ResourceProvider.ResourceProvider()
 
 class VideoAnalyser(object):
     """
@@ -64,15 +67,26 @@ class VideoAnalyser(object):
         out_file = cv2.VideoWriter(
             os.path.splitext(mp4_file_name)[0] + '.avi',
             fourcc,
-            25.0,
-            (1920, 1080)
+            RESOURCE_PROVIDER.get_string_table(
+                RESOURCE_PROVIDER.CAMERA_FRAMERATE
+            ),
+            (RESOURCE_PROVIDER.get_string_table(
+                RESOURCE_PROVIDER.CAMERA_RESOLUTION_WIDTH
+            ),
+             RESOURCE_PROVIDER.get_string_table(
+                 RESOURCE_PROVIDER.CAMERA_RESOLUTION_HEIGHT
+             ))
         )
+
+        frame_number = 0
 
         while cap.isOpened():
             ret, frame = cap.read()
 
             if bool(ret) is False:
                 break
+
+            print str(mp4_file_name) + ' === Frame number: ' + str(frame_number)
 
             frame = cv2.flip(frame, 0)
 
@@ -93,15 +107,16 @@ class VideoAnalyser(object):
                 self.__detections_applied = False
 
             out_file.write(frame)
+            frame_number = frame_number + 1
 
     def __face_detection_algorithm(self, frame):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         faces = self.__face_cascade.detectMultiScale(
             gray,
-            scaleFactor=1.2,
+            scaleFactor=1.1,
             minNeighbors=5,
-            minSize=(100, 100),
+            minSize=(30, 30),
             flags=cv2.CASCADE_SCALE_IMAGE
         )
 
