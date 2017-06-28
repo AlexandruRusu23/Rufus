@@ -129,9 +129,10 @@ void loop() {
   if(millis() - gas_scanner_timer > 3000)
   {
   //// Gas sensor
-    int auxValue1 = analogRead(MQ2_1_PIN);
-    int auxValue2 = analogRead(MQ2_2_PIN);
-    if (abs(scannerData.mq2_value[0] - auxValue1) > 25 || abs(scannerData.mq2_value[1] - auxValue2) > 25)
+    int auxValue = analogRead(MQ2_1_PIN);
+    auxValue =  auxValue + analogRead(MQ2_2_PIN);
+    auxValue = auxValue / 2;
+    if (abs( (scannerData.mq2_value[0] + scannerData.mq2_value[1]) / 2 - auxValue) > 15)
     {  
       scannerData.mq2_value[0] = analogRead(MQ2_1_PIN);
       scannerData.mq2_value[1] = analogRead(MQ2_2_PIN);

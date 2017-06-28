@@ -23,31 +23,49 @@ class AnalyserManager(threading.Thread):
         self.__video_analyser = None
         self.__data_analyser = None
 
+        self.__data_analyse_thread = None
+        self.__animations_update_thread = None
+
     def analyse_data(self, scanner_data_queue, animations_cmd_queue, notifications_queue):
         """
         analyse the scanner data from an extern queue
         """
         current_thread = threading.currentThread()
         self.__data_analyser = DataAnalyser.DataAnalyser()
-        __thread_timer = time.time()
-        __animation_timer = time.time()
-        while getattr(current_thread, 'is_running', True):
-            if time.time() - __animation_timer > 600.0 / 1000.0:
-                self.__data_analyser.update_animations(animations_cmd_queue)
-                __animation_timer = time.time()
 
+        self.__data_analyse_thread = threading.Thread(
+            target=self.__data_analyser.data_analyse,
+            args=()
+        )
+        self.__data_analyse_thread.start()
+
+        self.__animations_update_thread = threading.Thread(
+            target=self.__data_analyser.update_animations,
+            args=(animations_cmd_queue,)
+        )
+        self.__animations_update_thread.start()
+
+        __thread_timer = time.time()
+        while getattr(current_thread, 'is_running', True):
             if time.time() - __thread_timer > 100.0 / 1000.0:
                 try:
                     scanner_data_dict = scanner_data_queue.get(False)
                 except Queue.Empty:
                     continue
-                self.__data_analyser.analyse(scanner_data_dict)
+                self.__data_analyser.update_data(scanner_data_dict)
                 try:
                     notifications_queue.put(self.__data_analyser.get_notifications(), False)
                 except Queue.Full:
                     pass
                 scanner_data_queue.task_done()
                 __thread_timer = time.time()
+
+        self.__data_analyse_thread.is_running = False
+        self.__data_analyse_thread.join()
+        print '[Analyser Manager] data_analyse_thread stopped'
+        self.__animations_update_thread.is_running = False
+        self.__animations_update_thread.join()
+        print '[Analyser Manager] animations_update_thread stopped'
 
     def analyse_video(self, mp4_files_queue, analysed_mp4_files_queue):
         """
