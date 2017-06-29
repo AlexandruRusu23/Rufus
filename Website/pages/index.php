@@ -118,7 +118,7 @@ catch(PDOException $e)
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="../pages/index.php"><i class="fa fa-shield fa-3x" aria-hidden="true"></i></a>
+            <a class="navbar-brand" href="../pages/index.php"><img alt="Brand" src="../images/logo/logo4.png" class="img-responsive"/></a>
           </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -178,7 +178,7 @@ catch(PDOException $e)
         <div class="container">
             <!-- /.row -->
             <div class="row">
-                <div class="col-lg-3 col-md-6">
+                <div class="col-lg-4 col-md-5">
                     <div class="panel panel-success">
                         <div class="panel-heading">
                             <div class="row">
@@ -207,29 +207,7 @@ catch(PDOException $e)
                         </a>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="panel panel-primary">
-                        <div class="panel-heading">
-                            <div class="row">
-                                <div class="col-xs-3">
-                                    <i class="fa fa-cloud-upload fa-5x"></i>
-                                </div>
-                                <div class="col-xs-9 text-right">
-                                    <div class="h3"><strong>15 files</strong></div>
-                                    <div>Cloud</div>
-                                </div>
-                            </div>
-                        </div>
-                        <a href="../pages/cloud.php">
-                            <div class="panel-footer panel-primary">
-                                <span class="pull-left text-primary">View Details</span>
-                                <span class="pull-right text-primary"><i class="fa fa-arrow-circle-right fa-2x"></i></span>
-                                <div class="clearfix"></div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
+                <div class="col-lg-4 col-md-5">
                     <div class="panel panel-danger">
                         <div class="panel-heading">
                             <div class="row">
@@ -257,7 +235,7 @@ catch(PDOException $e)
                         </a>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6">
+                <div class="col-lg-4 col-md-5">
                     <div class="panel panel-warning">
                         <div class="panel-heading">
                             <div class="row">

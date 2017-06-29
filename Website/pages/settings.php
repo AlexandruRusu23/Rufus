@@ -7,12 +7,51 @@ function redirect($url) {
     die();
 }
 
+$servername = "localhost";
+$username = "root";
+$password = "internet12";
+
 session_start();
 if (!isset($_SESSION['user_email']))
 {
   redirect("../pages/login.php");
 }
 $account_name = $_SESSION['user_first_name'] .' '. $_SESSION['user_last_name'];
+
+$temperatureThresh = 0;
+$humidityThresh = 0;
+$gasThresh = 0;
+$surveillanceVideo = 0;
+$faceDetection = 0;
+$motionDetection = 0;
+$humanDetection = 0;
+
+try
+{
+    $conn = new PDO("mysql:host=$servername;dbname=test_create_DB", $username, $password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    $stmt = $conn->prepare("SELECT `TEMPERATURE_THRESHOLD`, `HUMIDITY_THRESHOLD`, `GAS_THRESHOLD`, `VIDEO_ENABLED`, `FACE_DETECTION`, `MOTION_DETECTION`, `HUMAN_DETECTION` FROM `HOME_SCANNER_USER_SETTINGS`");
+    $stmt->execute();
+
+    $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    foreach($stmt->fetchAll() as $k=>$v)
+    {
+        $temperatureThresh = $v['TEMPERATURE_THRESHOLD'];
+        $humidityThresh = $v['HUMIDITY_THRESHOLD'];
+        $gasThresh = $v['GAS_THRESHOLD'];
+        $surveillanceVideo = $v['VIDEO_ENABLED'];
+        $faceDetection = $v['FACE_DETECTION'];
+        $motionDetection = $v['MOTION_DETECTION'];
+        $humanDetection = $v['HUMAN_DETECTION'];
+    }
+}
+catch(PDOException $e)
+{
+    die($e->getMessage());
+    echo "Connection failed: " . $e->getMessage();
+}
+
 
 ?>
 
@@ -27,11 +66,33 @@ $account_name = $_SESSION['user_first_name'] .' '. $_SESSION['user_last_name'];
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script src="js/script.js"></script>
+
+  <script type="text/javascript">
+
+  function updateCheck(checker)
+  {
+    if (checker.id == 'surveillance_module')
+    {
+      if (checker.checked == true)
+      {
+        document.getElementById("face_detection").disabled = false;
+        document.getElementById("motion_detection").disabled = false;
+        document.getElementById("human_detection").disabled = false;
+      }
+      else {
+        document.getElementById("face_detection").disabled = true;
+        document.getElementById("motion_detection").disabled = true;
+        document.getElementById("human_detection").disabled = true;
+      }
+    }
+  }
+
+  </script>
+
 </head>
 
 <body>
   <div id="wrapper">
-
       <nav class="navbar navbar-default">
         <div class="container">
           <!-- Brand and toggle get grouped for better mobile display -->
@@ -99,9 +160,106 @@ $account_name = $_SESSION['user_first_name'] .' '. $_SESSION['user_last_name'];
         <!-- /.container-fluid -->
       </nav>
       <!-- /.navbar -->
+      <div class="container">
+
+        <div class="row">
+
+          <div class="col-md-4 col-md-offset-4">
+            <div id="settingsBlock" class="login-panel panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Adjust the assistant settings.</h3>
+                </div>
+                <div class="panel-body">
+                    <form role="form" method="post" action="../php/settingsManager.php">
+                        <fieldset>
+                            <div class="form-group">
+                                <label>Temperature Threshold:</label>
+                                <input id="tempThreshInput" class="form-control" placeholder="Temperature Threshold" name="temperatureThresh"
+                                value= <?php echo (int)$temperatureThresh; ?>
+                                type="number" min=-15 max=35 autofocus>
+                            </div>
+                            <div class="form-group">
+                                <label>Humidity Threshold:</label>
+                                <input id="humiThreshInput" class="form-control" placeholder="Humidity Threshold" name="humidityThresh"
+                                value= <?php echo (int)$humidityThresh; ?>
+                                type="number" min=20 max=80>
+                            </div>
+                            <div class="form-group">
+                                <label>Gas Threshold:</label>
+                                <input class="form-control" placeholder="Gas Threshold" name="gasThresh"
+                                value= <?php echo (int)$gasThresh; ?>
+                                type="number" min=200 max=500>
+                            </div>
+
+                            <div class="form-group">
+                              <label>Video Settings:</label>
+                              <div class="form-group">
+                                <input type="checkbox" id="surveillance_module" name="videoEnable" class="checkbox" onclick="updateCheck(this)"
+                                <?php
+                                  if ($surveillanceVideo == 1)
+                                    echo " checked ";
+                                ?>
+                                />
+                                <label for="surveillance_module">Surveillance Module</label>
+                              </div>
+
+                                <div class="form-group">
+                                  <input type="checkbox" id="face_detection" name="faceDetection" class="checkbox" onclick="updateCheck(this)"
+
+                                  <?php
+                                    if ($surveillanceVideo == 0)
+                                      echo " disabled ";
+                                    if ($faceDetection == 1)
+                                      echo " checked ";
+                                  ?>
+
+                                  />
+                                  <label for="face_detection">Face Detection</label>
+                                </div>
+
+                                <div class="form-group">
+                                  <input type="checkbox" id="motion_detection" name="motionDetection" class="checkbox" onclick="updateCheck(this)"
+
+                                  <?php
+                                    if ($surveillanceVideo == 0)
+                                      echo " disabled ";
+                                    if ($motionDetection == 1)
+                                      echo " checked ";
+                                  ?>
+
+                                  />
+                                  <label for="motion_detection">Motion Detection</label>
+                                </div>
+
+                                <div class="form-group">
+                                  <input type="checkbox" id="human_detection" name="humanDetection" class="checkbox" onclick="updateCheck(this)"
+
+                                  <?php
+                                    if ($surveillanceVideo == 0)
+                                      echo " disabled ";
+                                    if ($humanDetection == 1)
+                                      echo " checked ";
+                                  ?>
+
+                                  />
+                                  <label for="human_detection">Human Detection</label>
+                                </div>
+
+                            </div>
+
+                            <button type="submit" class="btn btn-lg btn-success btn-block">Save changes</button>
+                        </fieldset>
+                    </form>
+                </div>
+              </div>
+            </div>
+
+        </div>
+
+      </div>
+
 
     </div>
-
   </body>
 
   </html>
