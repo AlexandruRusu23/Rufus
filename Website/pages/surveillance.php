@@ -7,12 +7,35 @@ function redirect($url) {
     die();
 }
 
+$servername = "localhost";
+$username = "root";
+$password = "internet12";
+
 session_start();
 if (!isset($_SESSION['user_email']))
 {
   redirect("../pages/login.php");
 }
 $account_name = $_SESSION['user_first_name'] .' '. $_SESSION['user_last_name'];
+
+$videosArray = array();
+
+try {
+  $conn = new PDO("mysql:host=$servername;dbname=test_create_DB", $username, $password);
+  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+  $stmt = $conn->prepare("SELECT value, time_collected FROM HOME_SCANNER_VIDEO_FILES ORDER BY time_collected DESC");
+  $stmt->execute();
+  $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+  foreach($stmt->fetchAll() as $k=>$v) {
+      $videosArray[(string)$v['time_collected']] = (string)$v['value'];
+  }
+  $videosArray = array_reverse($videosArray);
+}
+catch (PDOException $e) {
+  die($e->getMessage());
+  echo "Connection failed: " . $e->getMessage();
+}
 
 ?>
 
@@ -27,11 +50,18 @@ $account_name = $_SESSION['user_first_name'] .' '. $_SESSION['user_last_name'];
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script src="js/script.js"></script>
+  <script type="text/javascript">
+    function changeVideo(video_source)
+    {
+      var video = document.getElementById('surveillance_video');
+      video.src = '../videos/' + video_source;
+      video.play();
+    }
+  </script>
 </head>
 
 <body>
   <div id="wrapper">
-
       <nav class="navbar navbar-default">
         <div class="container">
           <!-- Brand and toggle get grouped for better mobile display -->
@@ -99,187 +129,46 @@ $account_name = $_SESSION['user_first_name'] .' '. $_SESSION['user_last_name'];
         <!-- /.container-fluid -->
       </nav>
       <!-- /.navbar -->
-
       <div class="container">
           <!-- /.row -->
           <div class="row">
-            <div class="col-lg-3 col-md-6">
-                <div class="panel panel-danger">
-                    <div class="panel-heading">
-                        <div class="row">
-                            <div class="col-xs-3">
-                                <i class="fa fa-film fa-5x" aria-hidden="true"></i>
-                            </div>
-                            <div class="col-xs-9 text-right">
-                                <div class="h3"><strong>1:24 minutes</strong></div>
-                                <div>MOVIE24042014.avi</div>
-                            </div>
-                        </div>
-                    </div>
-                    <a href="../pages/surveillance.php">
-                        <div class="panel-footer panel-danger">
-                            <span class="pull-left text-danger">Watch Video</span>
-                            <span class="pull-right text-danger"><i class="fa fa-play-circle fa-2x" aria-hidden="true"></i></span>
-                            <div class="clearfix"></div>
-                        </div>
-                    </a>
-                </div>
+            <div class="col-md-2 col-md-offset-3">
+              <video id="surveillance_video" width="640" height="480" controls>
+                <source id="surveillance_video_source" src="../videos/test.mp4">
+                Your browser does not support the video tag.
+              </video>
             </div>
-            <div class="col-lg-3 col-md-6">
-                <div class="panel panel-danger">
-                    <div class="panel-heading">
-                        <div class="row">
-                            <div class="col-xs-3">
-                                <i class="fa fa-film fa-5x" aria-hidden="true"></i>
-                            </div>
-                            <div class="col-xs-9 text-right">
-                                <div class="h3"><strong>1:24 minutes</strong></div>
-                                <div>MOVIE24042014.avi</div>
-                            </div>
-                        </div>
-                    </div>
-                    <a href="../pages/surveillance.php">
-                        <div class="panel-footer panel-danger">
-                            <span class="pull-left text-danger">Watch Video</span>
-                            <span class="pull-right text-danger"><i class="fa fa-play-circle fa-2x" aria-hidden="true"></i></span>
-                            <div class="clearfix"></div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6">
-                <div class="panel panel-danger">
-                    <div class="panel-heading">
-                        <div class="row">
-                            <div class="col-xs-3">
-                                <i class="fa fa-film fa-5x" aria-hidden="true"></i>
-                            </div>
-                            <div class="col-xs-9 text-right">
-                                <div class="h3"><strong>1:24 minutes</strong></div>
-                                <div>MOVIE24042014.avi</div>
-                            </div>
-                        </div>
-                    </div>
-                    <a href="../pages/surveillance.php">
-                        <div class="panel-footer panel-danger">
-                            <span class="pull-left text-danger">Watch Video</span>
-                            <span class="pull-right text-danger"><i class="fa fa-play-circle fa-2x" aria-hidden="true"></i></span>
-                            <div class="clearfix"></div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6">
-                <div class="panel panel-danger">
-                    <div class="panel-heading">
-                        <div class="row">
-                            <div class="col-xs-3">
-                                <i class="fa fa-film fa-5x" aria-hidden="true"></i>
-                            </div>
-                            <div class="col-xs-9 text-right">
-                                <div class="h3"><strong>1:24 minutes</strong></div>
-                                <div>MOVIE24042014.avi</div>
-                            </div>
-                        </div>
-                    </div>
-                    <a href="../pages/surveillance.php">
-                        <div class="panel-footer panel-danger">
-                            <span class="pull-left text-danger">Watch Video</span>
-                            <span class="pull-right text-danger"><i class="fa fa-play-circle fa-2x" aria-hidden="true"></i></span>
-                            <div class="clearfix"></div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6">
-                <div class="panel panel-danger">
-                    <div class="panel-heading">
-                        <div class="row">
-                            <div class="col-xs-3">
-                                <i class="fa fa-film fa-5x" aria-hidden="true"></i>
-                            </div>
-                            <div class="col-xs-9 text-right">
-                                <div class="h3"><strong>1:24 minutes</strong></div>
-                                <div>MOVIE24042014.avi</div>
-                            </div>
-                        </div>
-                    </div>
-                    <a href="../pages/surveillance.php">
-                        <div class="panel-footer panel-danger">
-                            <span class="pull-left text-danger">Watch Video</span>
-                            <span class="pull-right text-danger"><i class="fa fa-play-circle fa-2x" aria-hidden="true"></i></span>
-                            <div class="clearfix"></div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6">
-                <div class="panel panel-danger">
-                    <div class="panel-heading">
-                        <div class="row">
-                            <div class="col-xs-3">
-                                <i class="fa fa-film fa-5x" aria-hidden="true"></i>
-                            </div>
-                            <div class="col-xs-9 text-right">
-                                <div class="h3"><strong>1:24 minutes</strong></div>
-                                <div>MOVIE24042014.avi</div>
-                            </div>
-                        </div>
-                    </div>
-                    <a href="../pages/surveillance.php">
-                        <div class="panel-footer panel-danger">
-                            <span class="pull-left text-danger">Watch Video</span>
-                            <span class="pull-right text-danger"><i class="fa fa-play-circle fa-2x" aria-hidden="true"></i></span>
-                            <div class="clearfix"></div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6">
-                <div class="panel panel-danger">
-                    <div class="panel-heading">
-                        <div class="row">
-                            <div class="col-xs-3">
-                                <i class="fa fa-film fa-5x" aria-hidden="true"></i>
-                            </div>
-                            <div class="col-xs-9 text-right">
-                                <div class="h3"><strong>1:24 minutes</strong></div>
-                                <div>MOVIE24042014.avi</div>
-                            </div>
-                        </div>
-                    </div>
-                    <a href="../pages/surveillance.php">
-                        <div class="panel-footer panel-danger">
-                            <span class="pull-left text-danger">Watch Video</span>
-                            <span class="pull-right text-danger"><i class="fa fa-play-circle fa-2x" aria-hidden="true"></i></span>
-                            <div class="clearfix"></div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6">
-                <div class="panel panel-danger">
-                    <div class="panel-heading">
-                        <div class="row">
-                            <div class="col-xs-3">
-                                <i class="fa fa-film fa-5x" aria-hidden="true"></i>
-                            </div>
-                            <div class="col-xs-9 text-right">
-                                <div class="h3"><strong>124 videos</strong></div>
-                                <div>MOVIE24042014.avi</div>
-                            </div>
-                        </div>
-                    </div>
-                    <a href="../pages/surveillance.php">
-                        <div class="panel-footer panel-danger">
-                            <span class="pull-left text-danger">View Details</span>
-                            <span class="pull-right text-danger"><i class="fa fa-play-circle fa-2x" aria-hidden="true"></i></span>
-                            <div class="clearfix"></div>
-                        </div>
-                    </a>
-                </div>
-            </div>
+          </div>
+        </br>
+          <div class="row">
 
+          <?php
+            foreach ($videosArray as $key => $value) {
+               echo
+                "<div class=\"col-lg-3 col-md-6\">
+                    <div class=\"panel panel-danger\">
+                        <div class=\"panel-heading\">
+                            <div class=\"row\">
+                                <div class=\"col-xs-3\">
+                                    <i class=\"fa fa-film fa-5x\" aria-hidden=\"true\"></i>
+                                </div>
+                                <div class=\"col-xs-9 text-right\">
+                                    <div class=\"h3\"><strong> $key </strong></div>
+                                    <div class=\"h6\"> $value </div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href=# onclick=\"changeVideo('$value')\">
+                            <div class=\"panel-footer panel-danger\">
+                                <span class=\"pull-left text-danger\">Watch Video</span>
+                                <span class=\"pull-right text-danger\"><i class=\"fa fa-play-circle fa-2x\" aria-hidden=\"true\"></i></span>
+                                <div class=\"clearfix\"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>";
+              }
+            ?>
           </div>
           <!-- /.row -->
         </div>

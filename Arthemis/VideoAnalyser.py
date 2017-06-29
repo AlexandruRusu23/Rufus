@@ -22,6 +22,12 @@ class VideoAnalyser(object):
         self.__motion_positions = []
         self.__human_positions = []
 
+        # motion detection algorithm variables
+        self.__first_frame = None
+        self.__min_noise_length = 0
+        self.__min_noise_area = 0
+        self.__detected_moved_objects = []
+
         self.__face_detect_enabled = False
         self.__motion_detect_enabled = False
         self.__human_detect_enabled = False
@@ -31,6 +37,11 @@ class VideoAnalyser(object):
         self.__face_cascade = cv2.CascadeClassifier(
             "haarcascade_frontalface_default.xml"
         )
+
+        # human detection variables
+        self.__hog_descriptor = cv2.HOGDescriptor()
+        self.__hog_descriptor.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
+        self.__detected_human_bodies = []
 
     def enable_face_recognition(self, enable):
         """
@@ -63,6 +74,8 @@ class VideoAnalyser(object):
         """
         Apply the detections results + rewrite the original file
         """
+        width = RESOURCE_PROVIDER.get_string_table(RESOURCE_PROVIDER.CAMERA_RESOLUTION_WIDTH)
+        height = RESOURCE_PROVIDER.get_string_table(RESOURCE_PROVIDER.CAMERA_RESOLUTION_HEIGHT)
         cap = cv2.VideoCapture(str(mp4_file_name))
         fourcc = cv2.VideoWriter_fourcc(*'MPEG')
         out_file = cv2.VideoWriter(
@@ -71,13 +84,14 @@ class VideoAnalyser(object):
             RESOURCE_PROVIDER.get_string_table(
                 RESOURCE_PROVIDER.CAMERA_FRAMERATE
             ),
-            (RESOURCE_PROVIDER.get_string_table(
-                RESOURCE_PROVIDER.CAMERA_RESOLUTION_WIDTH
-            ),
-             RESOURCE_PROVIDER.get_string_table(
-                 RESOURCE_PROVIDER.CAMERA_RESOLUTION_HEIGHT
-             ))
+            (width, height)
         )
+
+        self.__min_noise_length = int(4 * width / 100)
+        if self.__min_noise_length % 2 == 0:
+            self.__min_noise_length = self.__min_noise_length + 1
+
+        self.__min_noise_area = self.__min_noise_length ** 2
 
         frame_number = 0
 
@@ -110,6 +124,8 @@ class VideoAnalyser(object):
             out_file.write(frame)
             frame_number = frame_number + 1
 
+        self.__first_frame = None
+
     def __face_detection_algorithm(self, frame):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -124,10 +140,30 @@ class VideoAnalyser(object):
         self.__faces_positions = faces
 
     def __motion_detection_algorithm(self, frame):
-        print 'motion'
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        gray = cv2.GaussianBlur(gray, (self.__min_noise_length, self.__min_noise_length), 0)
+
+        if self.__first_frame is None:
+            self.__first_frame = frame
+            return
+
+        frame_delta = cv2.absdiff(self.__first_frame, gray)
+        thresh = cv2.threshold(frame_delta, 25, 255, cv2.THRESH_BINARY)[1]
+
+        thresh = cv2.dilate(thresh, None, iterations=2)
+        _, contours, _ = cv2.findContours(thresh.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+        for contour in contours:
+            if cv2.contourArea(contour) < self.__min_noise_area:
+                continue
+            self.__detected_moved_objects.append(cv2.boundingRect(contour))
 
     def __human_detection_algorithm(self, frame):
-        print 'human'
+        (rects, weights) = self.__hog_descriptor.detectMultiScale(
+            frame, winStride=(4, 4), padding=(8, 8), scale=1.15)
+
+        rects = np.array([[x, y, x + w, y + h] for (x, y, w, h) in rects])
+        self.__detected_human_bodies = non_max_suppression(rects, probs=None, overlapThresh=0.65)
 
     def __apply_detections(self, frame):
         if bool(self.__face_detect_enabled) is True:
@@ -140,6 +176,26 @@ class VideoAnalyser(object):
                     2
                 )
             self.__faces_positions = []
+
+        for element in self.__detected_moved_objects:
+            cv2.rectangle(
+                frame,
+                (element[0], element[1]),
+                (element[0] + element[2], element[1] + element[3]),
+                (255, 0, 0),
+                2
+            )
+        self.__detected_moved_objects = []
+
+        for element in self.__detected_human_bodies:
+            cv2.rectangle(
+                frame,
+                (element[0], element[1]),
+                (element[2], element[3]),
+                (0, 0, 255),
+                2
+            )
+        self.__detected_human_bodies = []
 
 if __name__ == "__main__":
     VIDEO_ANALYSER = VideoAnalyser()
