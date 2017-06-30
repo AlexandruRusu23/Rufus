@@ -60,7 +60,6 @@ class ScannerDataProvider(threading.Thread):
             if time.time() - self.__data_timer > 100.0/1000.0:
                 data_dict = self.__serial_manager.get_scanner_data()
                 if len(data_dict) > 0:
-                    print '[ScannerDataProvider] -- run -- ' + str(data_dict)
                     self.__store_data(data_dict)
                 self.__data_timer = time.time()
 
@@ -91,6 +90,5 @@ class ScannerDataProvider(threading.Thread):
         except Queue.Empty:
             return {}
 
-        print '[ScannerDataProvider] -- get_scanner_data --' + str(output)
         self.__scanner_data_queue.task_done()
         return output

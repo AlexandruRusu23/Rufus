@@ -110,8 +110,6 @@ class AnalyserManager(threading.Thread):
                     video_analyse_cmd.append("--human")
                     video_analyse_cmd.append(str(condition))
 
-                print video_analyse_cmd
-
                 analyse_video_process = subprocess.Popen(video_analyse_cmd)
 
                 while analyse_video_process.poll() is None:

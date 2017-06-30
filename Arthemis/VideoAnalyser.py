@@ -2,6 +2,8 @@
 MP4 Video Analyser module
 """
 
+from imutils.object_detection import non_max_suppression
+from imutils import paths
 import sys
 import argparse
 import os
@@ -144,7 +146,7 @@ class VideoAnalyser(object):
         gray = cv2.GaussianBlur(gray, (self.__min_noise_length, self.__min_noise_length), 0)
 
         if self.__first_frame is None:
-            self.__first_frame = frame
+            self.__first_frame = gray
             return
 
         frame_delta = cv2.absdiff(self.__first_frame, gray)
@@ -162,7 +164,7 @@ class VideoAnalyser(object):
         (rects, weights) = self.__hog_descriptor.detectMultiScale(
             frame, winStride=(4, 4), padding=(8, 8), scale=1.15)
 
-        rects = np.array([[x, y, x + w, y + h] for (x, y, w, h) in rects])
+        rects = numpy.array([[x, y, x + w, y + h] for (x, y, w, h) in rects])
         self.__detected_human_bodies = non_max_suppression(rects, probs=None, overlapThresh=0.65)
 
     def __apply_detections(self, frame):
