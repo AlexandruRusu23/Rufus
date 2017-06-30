@@ -181,7 +181,7 @@ class VideoManager(threading.Thread):
             try:
                 file_name = analysed_files_queue.get(False)
             except Queue.Empty:
-                time.sleep(0.1)
+                time.sleep(1)
                 continue
 
             # delete the mp4 file
@@ -207,6 +207,16 @@ class VideoManager(threading.Thread):
             convert_process = subprocess.Popen(convert_command)
 
             while convert_process.poll() is None:
+                time.sleep(0.1)
+
+            # delete the h264 file
+            clear_command = []
+            clear_command.append('rm')
+            clear_command.append(file_name)
+
+            clear_process = subprocess.Popen(clear_command)
+
+            while clear_process.poll() is None:
                 time.sleep(0.1)
 
             move_command = []

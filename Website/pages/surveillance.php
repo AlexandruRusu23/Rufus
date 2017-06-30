@@ -88,8 +88,6 @@ catch (PDOException $e) {
                   </li>
                   <li><a href="../pages/surveillance.php"><i class="fa fa-video-camera fa-fw" aria-hidden="true"></i> Surveillance</a>
                   </li>
-                  <li><a href="../pages/cloud.php"><i class="fa fa-cloud fa-fw" aria-hidden="true"></i> Cloud</a>
-                  </li>
                   <li role="separator" class="divider"></li>
                   <li><a href="../pages/settings.php"><i class="fa fa-wrench fa-fw" aria-hidden="true"></i> Configuration Board</a>
                   </li>
