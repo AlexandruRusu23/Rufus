@@ -195,10 +195,23 @@ class VideoManager(threading.Thread):
                 time.sleep(0.1)
 
             # move the avi file to website location
-            file_name = os.path.splitext(file_name)[0] + '.avi'
+            file_name = os.path.splitext(file_name)[0] + '.h264'
+
+            converted_file_name = os.path.splitext(file_name)[0] + '.mp4'
+            convert_command = []
+            convert_command.append(MP4BOX)
+            convert_command.append("-add")
+            convert_command.append(file_name)
+            convert_command.append(converted_file_name)
+
+            convert_process = subprocess.Popen(convert_command)
+
+            while convert_process.poll() is None:
+                time.sleep(0.1)
+
             move_command = []
             move_command.append('mv')
-            move_command.append(file_name)
+            move_command.append(converted_file_name)
             move_command.append('/var/www/html/videos/')
 
             move_process = subprocess.Popen(move_command)
@@ -208,7 +221,7 @@ class VideoManager(threading.Thread):
 
             timest = time.time()
             timestamp = datetime.datetime.fromtimestamp(timest).strftime('%Y-%m-%d %H:%M:%S')
-            db_file_record = [file_name, timestamp]
+            db_file_record = [converted_file_name, timestamp]
             self.__database_manager.insert_data_in_database(
                 db_file_record,
                 'HOME_SCANNER_VIDEO_FILES'

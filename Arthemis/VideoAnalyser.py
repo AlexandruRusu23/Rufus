@@ -79,9 +79,9 @@ class VideoAnalyser(object):
         width = RESOURCE_PROVIDER.get_string_table(RESOURCE_PROVIDER.CAMERA_RESOLUTION_WIDTH)
         height = RESOURCE_PROVIDER.get_string_table(RESOURCE_PROVIDER.CAMERA_RESOLUTION_HEIGHT)
         cap = cv2.VideoCapture(str(mp4_file_name))
-        fourcc = cv2.VideoWriter_fourcc(*'MPEG')
+        fourcc = cv2.VideoWriter_fourcc(*'X264')
         out_file = cv2.VideoWriter(
-            os.path.splitext(mp4_file_name)[0] + '.avi',
+            os.path.splitext(mp4_file_name)[0] + '.h264',
             fourcc,
             RESOURCE_PROVIDER.get_string_table(
                 RESOURCE_PROVIDER.CAMERA_FRAMERATE
