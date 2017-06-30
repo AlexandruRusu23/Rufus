@@ -260,19 +260,6 @@ class DataAnalyser(object):
         )
         self.__notifications_list_lock.release()
 
-    def motion_status(self):
-        """
-        returns True if motion has been detected and False otherwise
-        """
-        output = 0
-        self.__motion_value_lock.acquire()
-        if self.__motion_value is not None:
-            output = int(self.__motion_value[0])
-        self.__motion_value_lock.release()
-        if output > 0:
-            return True
-        return False
-
     def get_notifications(self):
         """
         get the possible notifications

@@ -132,10 +132,7 @@ class ApplicationManager(threading.Thread):
                     if int(video_condition) == 0:
                         self.__video_manager.enable_recording(False)
                     else:
-                        if bool(self.__analyser_manager.get_motion_status()) is False:
-                            self.__video_manager.enable_recording(False)
-                        else:
-                            self.__video_manager.enable_recording(True)
+                        self.__video_manager.enable_recording(True)
 
         # wait for every thread to finish their work
         self.__data_manager.stop()

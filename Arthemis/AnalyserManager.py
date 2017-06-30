@@ -127,12 +127,3 @@ class AnalyserManager(threading.Thread):
                         continue
                     break
                 mp4_files_queue.task_done()
-
-    def get_motion_status(self):
-        """
-        returns True if motion has been detected and False otherwise
-        """
-        if self.__data_analyser is not None:
-            return self.__data_analyser.motion_status()
-        else:
-            return False
