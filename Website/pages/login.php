@@ -10,7 +10,6 @@
 </head>
 
 <body>
-
   <div class="jumbotron text-center">
     <img src="../images/logo/logo1.png">
     <img src="../images/logo/logo2.png">
@@ -56,7 +55,6 @@
             </div>
           </div>
         </div>
-
         <div class="col-md-4 col-md-offset-4">
           <div id="loginBlock" class="login-panel panel panel-default">
               <div class="panel-heading">
@@ -83,6 +81,5 @@
         </div>
     </div>
   </div>
-
 </body>
 </html>

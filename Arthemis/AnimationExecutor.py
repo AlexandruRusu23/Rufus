@@ -263,3 +263,4 @@ class AnimationExecutor(threading.Thread):
                 AnimationExecutor._RED_COLOR,
                 int((random.random() * 1000) % 254)
             )
+

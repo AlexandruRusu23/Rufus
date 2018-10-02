@@ -1,9 +1,7 @@
 <?php
-
 $servername = "localhost";
 $username = "root";
 $password = "internet12";
-
 session_start();
 
 if (strlen($_POST['firstName']) < 8 || strlen($_POST['lastName']) < 8)
@@ -16,11 +14,9 @@ if(md5($_POST['password']) == md5($_POST['repeatPassword']) && strlen($_POST['pa
   try
   {
       $conn = new PDO("mysql:host=$servername;dbname=test_create_DB", $username, $password);
-      // set the PDO error mode to exception
       $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       $sql = "UPDATE `web_members` SET `FirstName` = '".$_POST['firstName']."', `LastName` = '".$_POST['lastName']."', `Email` = '".$_POST['email']."', `Password` = '".md5($_POST['password'])."'
       WHERE `Id` = '".$_SESSION['user_id']."'";
-      // use exec() because no results are returned
       $conn->exec($sql);
   }
   catch(PDOException $e)
@@ -31,13 +27,10 @@ if(md5($_POST['password']) == md5($_POST['repeatPassword']) && strlen($_POST['pa
   $_SESSION['user_first_name'] = $_POST['firstName'];
   $_SESSION['user_last_name'] = $_POST['lastName'];
   $_SESSION['user_email'] = $_POST['email'];
-
   header("Location:../pages/account.php");
 }
 else
 {
-  // to send error message;
   header("Location:../pages/login.php");
 }
-
 ?>

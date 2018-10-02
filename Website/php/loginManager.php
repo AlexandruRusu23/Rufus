@@ -1,5 +1,4 @@
 <?php
-
 $servername = "localhost";
 $username = "root";
 $password = "internet12";
@@ -15,10 +14,8 @@ try
 {
   $conn = new PDO("mysql:host=$servername;dbname=test_create_DB", $username, $password);
   $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
   $stmt = $conn->prepare("SELECT Id, FirstName, LastName, Password FROM web_members WHERE Email = '".$_POST['email']."'");
   $stmt->execute();
-
   $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
   foreach($stmt->fetchAll() as $k=>$v)
   {
@@ -42,7 +39,5 @@ catch(PDOException $e)
     die($e->getMessage());
     echo "Connection failed: " . $e->getMessage();
 }
-
 redirect("../pages/login.php");
-
 ?>

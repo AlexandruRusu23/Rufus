@@ -199,3 +199,4 @@ class ApplicationManager(threading.Thread):
                         'HOME_SCANNER_NOTIFICATIONS'
                     )
                 notifications_queue.task_done()
+

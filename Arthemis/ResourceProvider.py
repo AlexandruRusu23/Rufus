@@ -103,3 +103,4 @@ class ResourceProvider(object):
                     self._scanner_board_name = path_string + current_file
                 else:
                     self._animator_board_name = path_string + current_file
+

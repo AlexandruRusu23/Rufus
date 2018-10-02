@@ -127,3 +127,4 @@ class AnalyserManager(threading.Thread):
                         continue
                     break
                 mp4_files_queue.task_done()
+

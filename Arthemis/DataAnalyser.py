@@ -269,3 +269,4 @@ class DataAnalyser(object):
         self.__notifications_list = []
         self.__notifications_list_lock.release()
         return output
+

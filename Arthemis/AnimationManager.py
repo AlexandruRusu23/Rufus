@@ -41,3 +41,4 @@ class AnimationManager(object):
         self.__animation_executor.stop()
         self.__animation_executor.join()
         print '[Animation Manager] animation_executor stopped '
+

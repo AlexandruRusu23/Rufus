@@ -139,3 +139,4 @@ class DatabaseManager(object):
         values_list = self.__cursor.fetchall()
         self.__disconnect()
         return values_list
+

@@ -222,3 +222,4 @@ if __name__ == "__main__":
     FILE_NAME = ARGS_DICT.get('file')
     if len(str(FILE_NAME)) > 0:
         VIDEO_ANALYSER.apply_detections(str(FILE_NAME))
+

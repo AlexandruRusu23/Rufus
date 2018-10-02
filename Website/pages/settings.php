@@ -12,10 +12,7 @@ $username = "root";
 $password = "internet12";
 
 session_start();
-if (!isset($_SESSION['user_email']))
-{
-  redirect("../pages/login.php");
-}
+if (!isset($_SESSION['user_email'])) { redirect("../pages/login.php"); }
 $account_name = $_SESSION['user_first_name'] .' '. $_SESSION['user_last_name'];
 
 $temperatureThresh = 0;
@@ -51,8 +48,6 @@ catch(PDOException $e)
     die($e->getMessage());
     echo "Connection failed: " . $e->getMessage();
 }
-
-
 ?>
 
 <html>
@@ -66,7 +61,6 @@ catch(PDOException $e)
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script src="js/script.js"></script>
-
   <script type="text/javascript">
 
   function updateCheck(checker)
@@ -86,16 +80,13 @@ catch(PDOException $e)
       }
     }
   }
-
   </script>
 
 </head>
-
 <body>
   <div id="wrapper">
       <nav class="navbar navbar-default">
         <div class="container">
-          <!-- Brand and toggle get grouped for better mobile display -->
           <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
               <span class="sr-only">Toggle navigation</span>
@@ -103,11 +94,8 @@ catch(PDOException $e)
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-            <!-- <i class="fa fa-television" aria-hidden="true"></i> -->
             <a class="navbar-brand" href="../pages/index.php"><img alt="Brand" src="../images/logo/logo1.png" class="img-responsive"/></a>
           </div>
-
-        <!-- Collect the nav links, forms, and other content for toggling -->
           <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
               <li><a href="../pages/index.php"><i class="fa fa-home fa-fw" aria-hidden="true"></i>Home</a>
@@ -130,9 +118,7 @@ catch(PDOException $e)
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                   <i class="fa fa-user-circle-o fa-fw" aria-hidden="true"></i>
-                  <?php
-                    echo $account_name;
-                  ?>
+                  <?php echo $account_name; ?>
                   <i class="fa fa-caret-down" aria-hidden="true"></i>
                 </a>
                 <ul class="dropdown-menu">
@@ -144,24 +130,16 @@ catch(PDOException $e)
                   </li>
                   <li role="separator" class="divider"></li>
                   <li>
-                    <a href="../php/logoutManager.php">
-                      <i class="fa fa-sign-out" aria-hidden="true"></i>
-                      Logout
-                    </a>
+                    <a href="../php/logoutManager.php"> <i class="fa fa-sign-out" aria-hidden="true"></i> Logout </a>
                   </li>
                 </ul>
               </li>
             </ul>
           </div>
-          <!-- /.navbar-collapse -->
         </div>
-        <!-- /.container-fluid -->
       </nav>
-      <!-- /.navbar -->
       <div class="container">
-
         <div class="row">
-
           <div class="col-md-4 col-md-offset-4">
             <div id="settingsBlock" class="login-panel panel panel-default">
                 <div class="panel-heading">
@@ -193,71 +171,52 @@ catch(PDOException $e)
                               <label>Video Settings:</label>
                               <div class="form-group">
                                 <input type="checkbox" id="surveillance_module" name="videoEnable" class="checkbox" onclick="updateCheck(this)"
-                                <?php
-                                  if ($surveillanceVideo == 1)
-                                    echo " checked ";
-                                ?>
+                                <?php if ($surveillanceVideo == 1) echo " checked "; ?>
                                 />
                                 <label for="surveillance_module">Surveillance Module</label>
                               </div>
-
                                 <div class="form-group">
                                   <input type="checkbox" id="face_detection" name="faceDetection" class="checkbox" onclick="updateCheck(this)"
-
                                   <?php
                                     if ($surveillanceVideo == 0)
                                       echo " disabled ";
                                     if ($faceDetection == 1)
                                       echo " checked ";
                                   ?>
-
                                   />
                                   <label for="face_detection">Face Detection</label>
                                 </div>
-
                                 <div class="form-group">
                                   <input type="checkbox" id="motion_detection" name="motionDetection" class="checkbox" onclick="updateCheck(this)"
-
                                   <?php
                                     if ($surveillanceVideo == 0)
                                       echo " disabled ";
                                     if ($motionDetection == 1)
                                       echo " checked ";
                                   ?>
-
                                   />
                                   <label for="motion_detection">Motion Detection</label>
                                 </div>
-
                                 <div class="form-group">
                                   <input type="checkbox" id="human_detection" name="humanDetection" class="checkbox" onclick="updateCheck(this)"
-
                                   <?php
                                     if ($surveillanceVideo == 0)
                                       echo " disabled ";
                                     if ($humanDetection == 1)
                                       echo " checked ";
                                   ?>
-
                                   />
                                   <label for="human_detection">Human Detection</label>
                                 </div>
-
                             </div>
-
                             <button type="submit" class="btn btn-lg btn-success btn-block">Save changes</button>
                         </fieldset>
                     </form>
                 </div>
               </div>
             </div>
-
         </div>
-
       </div>
-
-
     </div>
   </body>
-
   </html>

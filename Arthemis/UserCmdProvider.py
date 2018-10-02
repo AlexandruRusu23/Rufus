@@ -72,3 +72,4 @@ class UserCmdProvider(object):
             return self.__motion_detection_enabled
         elif preference_type == UserCmdProvider.HUMAN_DETECTION_ENABLED:
             return self.__human_detection_enabled
+

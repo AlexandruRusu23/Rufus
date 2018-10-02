@@ -92,3 +92,4 @@ class ScannerDataProvider(threading.Thread):
 
         self.__scanner_data_queue.task_done()
         return output
+

@@ -131,3 +131,4 @@ class SerialManager(threading.Thread):
         Send to Microcontroller's Serial the commands stored in __commands_list
         """
         self.__writer()
+

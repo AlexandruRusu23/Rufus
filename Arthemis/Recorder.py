@@ -78,3 +78,4 @@ class Recorder(threading.Thread):
         self.__is_running_lock.acquire()
         self.__is_running = False
         self.__is_running_lock.release()
+

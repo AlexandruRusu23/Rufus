@@ -1,5 +1,4 @@
 <?php
-
 function redirect($url) {
     ob_start();
     header('Location: '.$url);
@@ -8,37 +7,28 @@ function redirect($url) {
 }
 
 session_start();
-if (!isset($_SESSION['user_email']))
-{
-  redirect("../pages/login.php");
-}
+if (!isset($_SESSION['user_email'])) { redirect("../pages/login.php"); }
 $account_name = $_SESSION['user_first_name'] .' '. $_SESSION['user_last_name'];
-
 $servername = "localhost";
 $username = "root";
 $password = "internet12";
-
 $notificationsList = array();
 
 try
 {
     $conn = new PDO("mysql:host=$servername;dbname=test_create_DB", $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    # notifications
     $stmt = $conn->prepare("SELECT value, time_collected FROM HOME_SCANNER_NOTIFICATIONS ORDER BY TIME_COLLECTED DESC");
     $stmt->execute();
     $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
     foreach($stmt->fetchAll() as $k=>$v) {
-        $notificationsList[(string)$v['time_collected']] = (string)$v['value'];
-    }
+        $notificationsList[(string)$v['time_collected']] = (string)$v['value']; }
 }
 catch(PDOException $e)
 {
     die($e->getMessage());
     echo "Connection failed: " . $e->getMessage();
 }
-
 ?>
 
 <html>
@@ -56,10 +46,8 @@ catch(PDOException $e)
 
 <body>
   <div id="wrapper">
-
       <nav class="navbar navbar-default">
         <div class="container">
-          <!-- Brand and toggle get grouped for better mobile display -->
           <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
               <span class="sr-only">Toggle navigation</span>
@@ -69,8 +57,6 @@ catch(PDOException $e)
             </button>
             <a class="navbar-brand" href="../pages/index.php"><i class="fa fa-bell fa-fw fa-2x"></i></a>
           </div>
-
-        <!-- Collect the nav links, forms, and other content for toggling -->
           <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
               <li><a href="../pages/index.php"><i class="fa fa-home fa-fw" aria-hidden="true"></i>Home</a>
@@ -88,7 +74,6 @@ catch(PDOException $e)
                 </ul>
               </li>
             </ul>
-
           <ul class="nav navbar-nav navbar-right">
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
@@ -116,18 +101,13 @@ catch(PDOException $e)
               </li>
             </ul>
           </div>
-          <!-- /.navbar-collapse -->
         </div>
-        <!-- /.container-fluid -->
       </nav>
-      <!-- /.navbar -->
-
       <div class="container">
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <i class="fa fa-bell fa-fw"></i> Notifications Panel
                         </div>
-                        <!-- /.panel-heading -->
                         <div class="panel-body">
                             <div class="list-group">
                               <?php
@@ -181,15 +161,9 @@ catch(PDOException $e)
                                 }
                               ?>
                             </div>
-                            <!-- /.list-group -->
                         </div>
-                        <!-- /.panel-body -->
                     </div>
-                    <!-- /.panel -->
           </div>
-
     </div>
-
   </body>
-
   </html>

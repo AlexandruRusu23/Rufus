@@ -8,12 +8,8 @@ function redirect($url) {
 }
 
 session_start();
-if (!isset($_SESSION['user_email']))
-{
-  redirect("../pages/login.php");
-}
+if (!isset($_SESSION['user_email'])) { redirect("../pages/login.php"); }
 $account_name = $_SESSION['user_first_name'] .' '. $_SESSION['user_last_name'];
-
 $servername = "localhost";
 $username = "root";
 $password = "internet12";
@@ -34,7 +30,6 @@ try
 {
     $conn = new PDO("mysql:host=$servername;dbname=test_create_DB", $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
     $stmt = $conn->prepare("SELECT value FROM HOME_SCANNER_DATABASE_TEMPERATURE WHERE time_collected in (select max(time_collected) from HOME_SCANNER_DATABASE_TEMPERATURE)");
     $stmt->execute();
 
@@ -45,7 +40,6 @@ try
 
     $stmt = $conn->prepare("SELECT value FROM HOME_SCANNER_DATABASE_HUMIDITY WHERE time_collected in (select max(time_collected) from HOME_SCANNER_DATABASE_HUMIDITY)");
     $stmt->execute();
-
     $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
     foreach($stmt->fetchAll() as $k=>$v) {
         $humidityValue = $v['value'];
@@ -53,7 +47,6 @@ try
 
     $stmt = $conn->prepare("SELECT value FROM HOME_SCANNER_DATABASE_GAS_RECORD WHERE time_collected in (select max(time_collected) from HOME_SCANNER_DATABASE_GAS_RECORD)");
     $stmt->execute();
-
     $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
     foreach($stmt->fetchAll() as $k=>$v) {
         $gasValue = $v['value'];
@@ -61,7 +54,6 @@ try
 
     $stmt = $conn->prepare("SELECT value FROM HOME_SCANNER_DATABASE_LIGHT WHERE time_collected in (select max(time_collected) from HOME_SCANNER_DATABASE_LIGHT)");
     $stmt->execute();
-
     $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
     foreach($stmt->fetchAll() as $k=>$v) {
         $lightValue = $v['value'];
@@ -69,7 +61,6 @@ try
 
     $stmt = $conn->prepare("SELECT value FROM HOME_SCANNER_DATABASE_MOTION WHERE time_collected in (select max(time_collected) from HOME_SCANNER_DATABASE_MOTION)");
     $stmt->execute();
-
     $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
     foreach($stmt->fetchAll() as $k=>$v) {
         $motionValue = $v['value'];
@@ -103,8 +94,6 @@ try
         $lightArray[(string)$v['time_collected']] = (string)$v['value'];
     }
 
-    #SELECT * FROM `HOME_SCANNER_DATABASE_MOTION` WHERE TIME_COLLECTED > DATE_SUB(NOW(), INTERVAL 7*24 HOUR)
-
     $stmt = $conn->prepare("SELECT value, time_collected FROM HOME_SCANNER_DATABASE_MOTION ORDER BY time_collected DESC LIMIT 50");
     $stmt->execute();
     $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
@@ -118,7 +107,6 @@ catch(PDOException $e)
     die($e->getMessage());
     echo "Connection failed: " . $e->getMessage();
 }
-
 ?>
 
 <html>
@@ -131,7 +119,6 @@ catch(PDOException $e)
   <link rel="stylesheet" href="../css/style.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <script type="text/javascript">
 
@@ -260,17 +247,13 @@ catch(PDOException $e)
       var chart = new google.visualization.AreaChart(document.getElementById('chart_data'));
       chart.draw(data, options);
     }
-
   </script>
-
 </head>
 
 <body>
   <div id="wrapper">
-
       <nav class="navbar navbar-default">
         <div class="container">
-          <!-- Brand and toggle get grouped for better mobile display -->
           <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
               <span class="sr-only">Toggle navigation</span>
@@ -278,11 +261,8 @@ catch(PDOException $e)
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-            <!-- <i class="fa fa-television" aria-hidden="true"></i> -->
             <a class="navbar-brand" href="../pages/index.php"><img alt="Brand" src="../images/logo/logo2.png" class="img-responsive"/></a>
           </div>
-
-        <!-- Collect the nav links, forms, and other content for toggling -->
           <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
               <li><a href="../pages/index.php"><i class="fa fa-home fa-fw" aria-hidden="true"></i>Home</a>
@@ -300,7 +280,6 @@ catch(PDOException $e)
                 </ul>
               </li>
             </ul>
-
           <ul class="nav navbar-nav navbar-right">
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
@@ -328,14 +307,9 @@ catch(PDOException $e)
               </li>
             </ul>
           </div>
-          <!-- /.navbar-collapse -->
         </div>
-        <!-- /.container-fluid -->
       </nav>
-      <!-- /.navbar -->
-
        <div class="container">
-            <!-- /.row -->
             <div class="row">
                 <div class="col-lg-3 col-md-6">
                     <div class="panel panel-success">
@@ -346,12 +320,7 @@ catch(PDOException $e)
                                 </div>
                                 <div class="col-xs-9 text-right">
                                     <div class="h3">
-                                      <strong>
-                                      <?php
-                                        print "$temperatureValue";
-                                      ?>
-                                        &#8451;
-                                      </strong>
+                                      <strong> <?php print "$temperatureValue"; ?> &#8451; </strong>
                                     </div>
                                     <div>Temperature</div>
                                 </div>
@@ -375,12 +344,7 @@ catch(PDOException $e)
                                 </div>
                                 <div class="col-xs-9 text-right">
                                     <div class="h3">
-                                      <strong>
-                                      <?php
-                                        print "$humidityValue";
-                                      ?>
-                                      %
-                                      </strong>
+                                      <strong> <?php print "$humidityValue"; ?> % </strong>
                                     </div>
                                     <div>Humidity</div>
                                 </div>
@@ -404,12 +368,7 @@ catch(PDOException $e)
                                 </div>
                                 <div class="col-xs-9 text-right">
                                     <div class="h3">
-                                      <strong>
-                                      <?php
-                                        print number_format($gasValue / 1024 * 100, 2);
-                                      ?>
-                                      %
-                                      </strong>
+                                      <strong> <?php print number_format($gasValue / 1024 * 100, 2); ?> % </strong>
                                     </div>
                                     <div>Smoke and Gas</div>
                                 </div>
@@ -432,13 +391,8 @@ catch(PDOException $e)
                                     <i class="fa fa-lightbulb-o fa-5x" aria-hidden="true"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="h3">
-                                      <strong>
-                                      <?php
-                                        print number_format($lightValue / 1024 * 100, 2);
-                                      ?>
-                                      %
-                                      </strong>
+                                    <div class="h3"> 
+                                      <strong> <?php print number_format($lightValue / 1024 * 100, 2); ?> % </strong>
                                     </div>
                                     <div>Light</div>
                                 </div>
@@ -488,13 +442,8 @@ catch(PDOException $e)
                     </div>
                 </div>
             </div>
-            <!-- /.row -->
-            <div id="chart_data" style="width: 100%; height: 700px;"></div>
-
+            <div id="chart_data" style="width: 100%; height: 700px;"></div>\
         </div>
-
     </div>
-
   </body>
-
   </html>

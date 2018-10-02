@@ -36,7 +36,6 @@ catch (PDOException $e) {
   die($e->getMessage());
   echo "Connection failed: " . $e->getMessage();
 }
-
 ?>
 
 <html>
@@ -64,7 +63,6 @@ catch (PDOException $e) {
   <div id="wrapper">
       <nav class="navbar navbar-default">
         <div class="container">
-          <!-- Brand and toggle get grouped for better mobile display -->
           <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
               <span class="sr-only">Toggle navigation</span>
@@ -72,11 +70,8 @@ catch (PDOException $e) {
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-            <!-- <i class="fa fa-television" aria-hidden="true"></i> -->
             <a class="navbar-brand" href="../pages/index.php"><img alt="Brand" src="../images/logo/logo3.png" class="img-responsive"/></a>
           </div>
-
-        <!-- Collect the nav links, forms, and other content for toggling -->
           <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
               <li><a href="../pages/index.php"><i class="fa fa-home fa-fw" aria-hidden="true"></i>Home</a>
@@ -99,9 +94,7 @@ catch (PDOException $e) {
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                   <i class="fa fa-user-circle-o fa-fw" aria-hidden="true"></i>
-                  <?php
-                  echo $account_name;
-                  ?>
+                  <?php echo $account_name; ?>
                   <i class="fa fa-caret-down" aria-hidden="true"></i>
                 </a>
                 <ul class="dropdown-menu">
@@ -113,22 +106,15 @@ catch (PDOException $e) {
                   </li>
                   <li role="separator" class="divider"></li>
                   <li>
-                    <a href="../php/logoutManager.php">
-                      <i class="fa fa-sign-out" aria-hidden="true"></i>
-                      Logout
-                    </a>
+                    <a href="../php/logoutManager.php"> <i class="fa fa-sign-out" aria-hidden="true"></i> Logout </a>
                   </li>
                 </ul>
               </li>
             </ul>
           </div>
-          <!-- /.navbar-collapse -->
         </div>
-        <!-- /.container-fluid -->
       </nav>
-      <!-- /.navbar -->
       <div class="container">
-          <!-- /.row -->
           <div class="row">
             <div class="col-md-2 col-md-offset-3">
               <video id="surveillance_video" width="640" height="480" controls>
@@ -139,7 +125,6 @@ catch (PDOException $e) {
           </div>
         </br>
           <div class="row">
-
           <?php
             foreach ($videosArray as $key => $value) {
                echo
@@ -168,11 +153,7 @@ catch (PDOException $e) {
               }
             ?>
           </div>
-          <!-- /.row -->
         </div>
-
     </div>
-
   </body>
-
   </html>
